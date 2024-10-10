@@ -9,4 +9,4 @@ docker-compose exec app php artisan route:cache
 docker-compose exec app php artisan config:clear
 docker-compose exec app php artisan migrate
 
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build app
+#docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build app

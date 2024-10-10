@@ -13,12 +13,12 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        dd($request);
-        $user = User::where('email', $request['email'])->first();
-
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        $user = User::where("email", $request->email)->first();
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(["error" => "The provided credentials are incorrect"], 401);
         }
+
+        return response()->json(["token" => $user->createToken($user->name)->plainTextToken]);
     }
 
     public function registration(LoginRequest $request)
