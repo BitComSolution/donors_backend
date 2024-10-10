@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+    redis:
+        container_name: ${SERVICE}-redis
+        image: redis:latest
+        restart: unless-stopped
+        tty: true
+        command: redis-server --appendonly yes
+        volumes:
+            - donor_redis:/data
+        networks:
+            - infrastructure
+
+    db:
+        container_name: ${SERVICE}-db
+        image: postgres:latest
+        restart: unless-stopped
+        tty: true
+        environment:
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS}
+        volumes:
+            - donor_db:/var/lib/postgresql/data
+            - donor_db:/docker-entrypoint-initdb.d
+        networks:
+            - infrastructure
+
+volumes:
+    donor_redis: {}
+    donor_db: {}
+
+networks:
+    infrastructure:
+        driver: bridge

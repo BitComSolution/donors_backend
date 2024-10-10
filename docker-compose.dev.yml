@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: ${SERVICE}-app
+    restart: unless-stopped
+    working_dir: /app
+    build:
+      context: .
+      dockerfile: DevDockerfile
+    ports:
+      - "${APP_PORT}:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - pgbouncer
+    networks:
+      - infrastructure
+
+  pgbouncer:
+    container_name: ${SERVICE}-pgbouncer
+    image: pgbouncer/pgbouncer:latest
+    restart: unless-stopped
+    tty: true
+    environment:
+      DATABASES_HOST: db
+      DATABASES_PORT: 5432
+      DATABASES_USER: ${DB_USERNAME}
+      DATABASES_PASSWORD: ${DB_PASSWORD}
+      DATABASES_DBNAME: ${DB_DATABASE}
+      PGBOUNCER_POOL_MODE: ${PGBOUNCER_POOL_MODE}
+      PGBOUNCER_MAX_CLIENT_CONN: ${PGBOUNCER_MAX_CLIENT_CONN}
+      PGBOUNCER_DEFAULT_POOL_SIZE: ${PGBOUNCER_DEFAULT_POOL_SIZE}
+      PGBOUNCER_MIN_POOL_SIZE: ${PGBOUNCER_MIN_POOL_SIZE}
+      PGBOUNCER_SERVER_RESET_QUERY: ${PGBOUNCER_SERVER_RESET_QUERY}
+      PGBOUNCER_LOGFILE: ${PGBOUNCER_LOGFILE}
+    volumes:
+      - donor_pgbouncer:/var/log/pgbouncer
+    networks:
+      - infrastructure
+    depends_on:
+      - db
+    ports:
+      - "${PGBOUNCER_PORT}:6432"
+
+volumes:
+  donor_pgbouncer: {}
+
+networks:
+  infrastructure:
+    driver: bridge
