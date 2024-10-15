@@ -8,7 +8,7 @@ services:
         tty: true
         command: redis-server --appendonly yes
         volumes:
-            - donor_redis:/data
+            - donors_redis:/data
         networks:
             - infrastructure
 
@@ -23,15 +23,20 @@ services:
             POSTGRES_DB: ${DB_DATABASE}
             POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS}
         volumes:
-            - donor_db:/var/lib/postgresql/data
-            - donor_db:/docker-entrypoint-initdb.d
+            - donors_db:/var/lib/postgresql/data
+            - donors_db:/docker-entrypoint-initdb.d
         networks:
             - infrastructure
 
 volumes:
-    donor_redis: {}
-    donor_db: {}
+    donors_redis: {}
+    donors_db: {}
 
 networks:
     infrastructure:
+        name: ${SERVICE}_donors_infrastructure
+        driver: bridge
+
+    donors_infrastructure:
+        name: donors_infrastructure
         driver: bridge

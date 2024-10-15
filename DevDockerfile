@@ -5,6 +5,7 @@ RUN install-php-extensions \
     pdo_pgsql \
     pgsql \
     redis \
+    rdkafka \
     zip \
     ctype \
     curl \
