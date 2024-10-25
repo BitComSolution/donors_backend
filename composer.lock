@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "74b36029c3b76da64fc21692719c021a",
+    "content-hash": "52e044ee57ad57e4f9f2b5c28766f4de",
     "packages": [
         {
             "name": "brick/math",
@@ -1049,6 +1049,46 @@
                 }
             ],
             "time": "2023-12-03T19:50:20+00:00"
+        },
+        {
+            "name": "julfiker/laravel-sqlsrv",
+            "version": "v1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/julfiker/laravel-sqlsrv.git",
+                "reference": "724c7beb65ace5da101653eb7f03bf210b422f97"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/julfiker/laravel-sqlsrv/zipball/724c7beb65ace5da101653eb7f03bf210b422f97",
+                "reference": "724c7beb65ace5da101653eb7f03bf210b422f97",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Julfiker\\SqlSrv\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Julfiker",
+                    "email": "mail.julfiker@gmail.com"
+                }
+            ],
+            "description": "Laravel - SQL Server connectivity and procedure execute and othes",
+            "support": {
+                "issues": "https://github.com/julfiker/laravel-sqlsrv/issues",
+                "source": "https://github.com/julfiker/laravel-sqlsrv/tree/v1.6"
+            },
+            "time": "2023-02-14T06:51:32+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",

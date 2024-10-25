@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Scheduled;
 use App\Models\User;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -20,7 +21,11 @@ class DatabaseSeeder extends Seeder
         $data['name'] = 'Admin';
         $data['email'] = 'admin@admin.ru';
         $data['password'] = Hash::make('passwordDonor!');
+        User::create($data);
 
-        $user = User::create($data);
+        Scheduled::create([
+            'title' => 'dump',
+            'period_hours' => 1
+        ]);
     }
 }
