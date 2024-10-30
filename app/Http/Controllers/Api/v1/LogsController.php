@@ -16,6 +16,8 @@ class LogsController extends Controller
 
     public function getFile($id)
     {
-        Storage::get();
+        $log = Logs::find($id);
+        return Storage::download($log['file']);
+
     }
 }

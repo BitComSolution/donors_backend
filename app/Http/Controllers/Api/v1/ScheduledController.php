@@ -21,7 +21,7 @@ class ScheduledController extends Controller
 
     public function create(ScheduledRequest $request)
     {
-        $scheduled = Scheduled::create($request->all());
+        $scheduled = Scheduled::firstOrCreate($request->all());
         return response()->json($scheduled);
     }
 

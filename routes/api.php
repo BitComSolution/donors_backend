@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use  App\Http\Controllers\Api\v1\AuthController;
@@ -19,17 +18,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::prefix('command')->group(function () {
         Route::get('get', [ScheduledController::class, 'get']);
-        Route::put('edit/{{id}', [ScheduledController::class, 'edit']);
+        Route::put('edit/{scheduled}', [ScheduledController::class, 'edit']);
         Route::post('create', [ScheduledController::class, 'create']);
-        Route::delete('delete/{{id}', [ScheduledController::class, 'delete']);
+        Route::delete('delete/{scheduled}', [ScheduledController::class, 'delete']);
     });
     Route::prefix('logs')->group(function () {
         Route::get('list', [LogsController::class, 'getList']);
-        Route::post('file/{{id}}', [LogsController::class, 'getFile']);
+        Route::post('file/{id}', [LogsController::class, 'getFile']);
     });
     Route::prefix('source')->group(function () {
+        Route::post('aist', [SourceController::class, 'aist']);
         Route::post('request', [SourceController::class, 'sendRequest']);
         Route::get('list', [SourceController::class, 'getListDonors']);
-        Route::get('{{source}}', [SourceController::class, 'getItem']);
+        Route::get('{source}', [SourceController::class, 'getItem']);
     });
+});
+Route::prefix('webhook')->group(function () {
+    Route::get('aist', [SourceController::class, 'ready']);
 });

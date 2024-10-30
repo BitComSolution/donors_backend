@@ -5,12 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Source extends Model
+class BloodData extends Model
 {
     use HasFactory;
 
-    protected $connection = 'pgsql';
-
-    protected $guarded = [];
-
+    protected $connection = 'db_two';
+    protected $table = 'blooddata';
 }

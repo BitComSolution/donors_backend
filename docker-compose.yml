@@ -28,9 +28,29 @@ services:
         networks:
             - infrastructure
 
+    mysql:
+        image: mysql:latest
+        volumes:
+            - donors_mysql:/var/lib/mysql
+        container_name: mysql
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "${MYSQL_PORT}:3306"
+        environment:
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD_TWO}
+            MYSQL_DATABASE: ${DB_DATABASE_TWO}
+            MYSQL_USER: ${DB_USERNAME_TWO}
+            MYSQL_PASSWORD: ${DB_PASSWORD_TWO}
+        networks:
+            - infrastructure
+
 volumes:
-    donors_redis: {}
-    donors_db: {}
+    donors_redis: { }
+    donors_db: { }
+    donors_mysql: { }
 
 networks:
     infrastructure:
