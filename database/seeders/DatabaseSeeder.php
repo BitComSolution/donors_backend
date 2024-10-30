@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $data['name'] = 'Admin';
         $data['email'] = 'admin@admin.ru';
         $data['password'] = Hash::make('passwordDonor!');
-//        User::create($data);
+        User::create($data);
 
         Scheduled::firstOrCreate([
             'title' => 'dump'], [

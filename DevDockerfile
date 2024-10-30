@@ -18,7 +18,8 @@ RUN install-php-extensions \
     pcre \
     session \
     tokenizer \
-    xml
+    xml \
+    pdo_mysql
 
 RUN apt-get update && apt-get install -y \
     supervisor \
