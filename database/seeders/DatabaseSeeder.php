@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
 
         $data['name'] = 'Admin';
         $data['email'] = 'admin@admin.ru';
-        $data['password'] = Hash::make('passwordDonor!');
+        $data['password'] = Hash::make('passwordDonor!2024');
         User::create($data);
 
         Scheduled::firstOrCreate([

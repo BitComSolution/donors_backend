@@ -28,14 +28,14 @@ class SourceController extends Controller
 
     public function sendRequest()
     {
-//        $this->sourceService->requestMS();
+        $this->sourceService->requestMS();
         return BloodData::all();
     }
 
     public function aist()
     {
-        $this->sourceService->sendCommand();
-
+        $this->sourceService->dbSynchronize();
+//        $this->sourceService->sendCommand();
         return true;
     }
 

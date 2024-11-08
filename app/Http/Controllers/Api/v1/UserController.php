@@ -14,7 +14,7 @@ class UserController extends Controller
     public function create(LoginRequest $request)
     {
         $data = $request->all();
-        $data['name'] = $request->get('name','Test name');
+        $data['name'] = $request->get('name', 'Test name');
         $data['password'] = Hash::make($request['password']);
 
         $user = User::create($data);
@@ -32,5 +32,14 @@ class UserController extends Controller
 
         $user = User::whereIn('id', $request['ids'])->delete();
         return response()->json(['message' => $user], 200);
+    }
+
+    public function edit(User $user, Request $request)
+    {
+        $data = $request->all();
+        if (isset($request['password']))
+            $data['password'] = Hash::make($request['password']);
+        $user = $user->update($data);
+        return response()->json($user);
     }
 }
