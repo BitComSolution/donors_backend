@@ -35,5 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 Route::prefix('webhook')->group(function () {
-    Route::get('aist', [SourceController::class, 'ready']);
+    Route::post('ready', [SourceController::class, 'ready']);
+    Route::post('fail', [SourceController::class, 'fail']);
+
 });

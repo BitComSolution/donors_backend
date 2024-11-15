@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BloodData;
 use App\Models\Donors;
+use App\Models\EventLog;
 use App\Models\Logs;
 use App\Models\Source;
 use Carbon\Carbon;
@@ -15,6 +16,7 @@ class SourceService
 {
     public function dbSynchronize()
     {
+        EventLog::create(['type' => 'ready']);
         $saved = Donors::all();
         $mysql = BloodData::whereNotIn('card_id', $saved->pluck('id_mysql'))->get()->values();
         $all = [];
@@ -37,9 +39,12 @@ class SourceService
         return [];
     }
 
-    public function sendCommand()
+    public function sendCommand($start, $end)
     {
-        $client = Http::get(config('track.api_key'), []);
+        $client = Http::post('192.168.0.15:5050/start', [
+            "startDate" => $start,
+            "endDate" => $end
+        ]);
         //отправить команду чтобы сервис обновился
         return [];
     }
@@ -75,4 +80,8 @@ class SourceService
         Logs::create(['name' => $name, 'error' => ($name == 'bad') ? true : false, 'file' => $csvFileName]);
     }
 
+    public function failLog()
+    {
+        EventLog::create(['type' => 'fail']);
+    }
 }

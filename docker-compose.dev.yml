@@ -19,6 +19,8 @@ services:
       - LETSENCRYPT_HOST=${DOMAIN}
       - VIRTUAL_HOST=${DOMAIN}
       - VIRTUAL_PORT=8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   pgbouncer:
     container_name: ${SERVICE}-pgbouncer

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BloodData;
 use App\Models\Source;
 use App\Services\SourceService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SourceController extends Controller
@@ -32,17 +33,22 @@ class SourceController extends Controller
         return BloodData::all();
     }
 
-    public function aist()
+    public function aist(Request $request)
     {
-        $this->sourceService->dbSynchronize();
-//        $this->sourceService->sendCommand();
+//        $this->sourceService->dbSynchronize();
+        $this->sourceService->sendCommand($request->get('startDate', Carbon::now()->subDays(30)->toDateString()), $request->get('endDate', Carbon::now()->toDateString()));
         return true;
     }
 
-    public function ready()
+    public function ready(Request $request)
     {
         $this->sourceService->dbSynchronize();
+        return true;
+    }
 
+    public function fail(Request $request)
+    {
+        $this->sourceService->failLog();
         return true;
     }
 }
