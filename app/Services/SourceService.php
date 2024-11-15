@@ -41,7 +41,7 @@ class SourceService
 
     public function sendCommand($start, $end)
     {
-        $client = Http::post('192.168.0.15:5050/start', [
+        $client = Http::post(config('aist.url').'/start', [
             "startDate" => $start,
             "endDate" => $end
         ]);
