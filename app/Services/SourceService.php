@@ -10,7 +10,7 @@ use App\Models\Source;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Validator;
 
 class SourceService
 {
@@ -25,6 +25,8 @@ class SourceService
             $data = $donor->getOriginal();
             unset($data['Id']);
             try {
+                $validator = Validator::make($data, Source::RULE);
+                $data['validated'] = !$validator->fails();
                 Source::create($data);
                 $all[] = $data;
             } catch (\Exception $exception) {
@@ -41,7 +43,7 @@ class SourceService
 
     public function sendCommand($start, $end)
     {
-        $client = Http::post(config('aist.url').'/start', [
+        $client = Http::post(config('aist.url') . '/start', [
             "startDate" => $start,
             "endDate" => $end
         ]);

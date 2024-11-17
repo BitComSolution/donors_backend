@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\BloodComponentMain;
 use App\Models\BloodData;
 use App\Models\Source;
 use App\Services\SourceService;
@@ -18,8 +19,8 @@ class SourceController extends Controller
 
     public function getListDonors(Request $request)
     {
-        //добавить переключатель по валидации
-        return response()->json(Source::paginate($request->get('per_page', 50)));
+        $source = Source::where("validated", $request->get('valid', true));
+        return response()->json($source->paginate($request->get('per_page', 50)));
     }
 
     public function getItem(Source $source)
@@ -29,8 +30,10 @@ class SourceController extends Controller
 
     public function sendRequest()
     {
-        $this->sourceService->requestMS();
-        return BloodData::all();
+        return BloodComponentMain::all();
+
+//        $this->sourceService->requestMS();
+//        return BloodData::all();
     }
 
     public function aist(Request $request)

@@ -81,6 +81,7 @@ return new class extends Migration {
             $table->string('analysis_upper_bound', length: 100)->nullable();
             $table->string('analysis_value_2', length: 100)->nullable();
             $table->string('doctor_visit_value', length: 100)->nullable();
+            $table->boolean('validated')->default(true);
             $table->timestamps();
         });
 //        Schema::connection('db_two')->create('blooddata', function (Blueprint $table) {
