@@ -19,7 +19,7 @@ class SourceController extends Controller
 
     public function getListDonors(Request $request)
     {
-        $source = Source::where("validated", $request->get('valid', true));
+        $source = Source::where("validated", $request->get('validated', true));
         return response()->json($source->paginate($request->get('per_page', 50)));
     }
 
@@ -30,6 +30,14 @@ class SourceController extends Controller
 
     public function sendRequest()
     {
+        $create=BloodComponentMain::create(["number" => 3,
+            "BloodNumber" => 5,
+            "BloodGroup" => "test",
+            "Phenotype" => "test",
+            "Count" => 222,
+            "RegionReportGuid" => "80A027C9-4A52-4E13-9E98-A1EFFFE80914",
+            "OrgId" => 1,
+            "OrgName" => "test"]);
         return BloodComponentMain::all();
 
 //        $this->sourceService->requestMS();

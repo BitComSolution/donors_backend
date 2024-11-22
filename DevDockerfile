@@ -19,7 +19,9 @@ RUN install-php-extensions \
     session \
     tokenizer \
     xml \
-    pdo_mysql
+    pdo_mysql \
+    pdo_sqlsrv \
+    sqlsrv
 
 RUN apt-get update && apt-get install -y \
     supervisor \

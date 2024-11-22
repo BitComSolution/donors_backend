@@ -11,4 +11,6 @@ class BloodComponentMain extends Model
 
     protected $connection = 'sqlsrv';
     protected $table = 'BloodComponentMain';
+    protected $fillable = ['number', 'BloodNumber', 'BloodGroup', 'Phenotype', 'Count', 'Id', 'RegionReportGuid', 'OrgId', 'OrgName'];
+    public $timestamps = false;
 }
