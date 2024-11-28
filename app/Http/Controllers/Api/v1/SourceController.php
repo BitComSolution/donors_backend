@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BloodComponentMain;
 use App\Models\BloodData;
 use App\Models\Source;
+use App\Services\MSService;
 use App\Services\SourceService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,7 +14,8 @@ use Illuminate\Http\Request;
 class SourceController extends Controller
 {
     public function __construct(
-        protected SourceService $sourceService)
+        protected SourceService $sourceService,
+        protected MSService $MSService,)
     {
     }
 
@@ -30,18 +32,7 @@ class SourceController extends Controller
 
     public function sendRequest()
     {
-        $create=BloodComponentMain::create(["number" => 3,
-            "BloodNumber" => 5,
-            "BloodGroup" => "test",
-            "Phenotype" => "test",
-            "Count" => 222,
-            "RegionReportGuid" => "80A027C9-4A52-4E13-9E98-A1EFFFE80914",
-            "OrgId" => 1,
-            "OrgName" => "test"]);
-        return BloodComponentMain::all();
-
-//        $this->sourceService->requestMS();
-//        return BloodData::all();
+        return $this->MSService->send();
     }
 
     public function aist(Request $request)
