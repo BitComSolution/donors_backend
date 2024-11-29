@@ -51,17 +51,6 @@ class SourceService
         return [];
     }
 
-    public function requestMS()
-    {
-        $source = Source::all();
-        foreach ($source->pluck('card_id') as $id) {
-            Donors::create(['id_mysql' => $id]);
-        }
-//ОТПРАВКА НА СЕРВИС конечный
-        $source->each->delete();
-        //отправить данные на сервис
-    }
-
     public function createLog($name, $list)
     {
         $fields = Logs::FIELD;

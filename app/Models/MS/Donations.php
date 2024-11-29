@@ -35,7 +35,7 @@ class Donations extends Model
     const Fields = [
         ['ms' => 'UniqueId', 'aist' => 'donation_id'],
         ['ms' => 'DonorId', 'aist' => 'card_id'],
-        ['ms' => 'OrgId', 'aist' => 'donation_org_id'],
+        ['ms' => 'OrgId', 'aist' => 'donation_org_128'],
         ['ms' => 'DepartmentId', 'aist' => 'donation_org_id', 'default' => 0],//test data
         ['ms' => 'DonationTypeId', 'aist' => 'DonationTypeId'],
         ['ms' => 'DonationDate', 'aist' => 'donation_date'],

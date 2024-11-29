@@ -70,7 +70,7 @@ class PersonCards extends Model
 
     const Fields = [
         ['ms' => 'UniqueId', 'aist' => 'card_id'],
-        ['ms' => 'OrgId', 'aist' => 'mail_num'],//test data
+        ['ms' => 'OrgId', 'aist' => 'OrgId'],//test data
         ['ms' => 'LastName', 'aist' => 'lastname'],
         ['ms' => 'FirstName', 'aist' => 'name'],
         ['ms' => 'MiddleName', 'aist' => 'middlename'],
@@ -89,7 +89,7 @@ class PersonCards extends Model
 //        ['ms' => 'NextDonationDate', 'aist' => ''],
         ['ms' => 'BloodGroup', 'aist' => 'blood_group'],
         ['ms' => 'Kell', 'aist' => 'kell'],
-//        ['ms' => 'Phenotype', 'aist' => 'phenotype'],/////
+        ['ms' > 'Phenotype', 'aist' => 'phenotype'],
         ['ms' => 'RbcAntibody', 'aist' => 'anti_erythrocyte_antibodies'],
 //        ['ms' => 'DeathDate', 'aist' => ''],
         ['ms' => 'CreateDate', 'aist' => 'created'],
