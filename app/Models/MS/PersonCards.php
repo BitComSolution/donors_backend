@@ -70,13 +70,13 @@ class PersonCards extends Model
 
     const Fields = [
         ['ms' => 'UniqueId', 'aist' => 'card_id'],
-        ['ms' => 'OrgId', 'aist' => 'org_ex_id', 'default' => 770100],//test data
+        ['ms' => 'OrgId', 'aist' => 'mail_num'],//test data
         ['ms' => 'LastName', 'aist' => 'lastname'],
         ['ms' => 'FirstName', 'aist' => 'name'],
         ['ms' => 'MiddleName', 'aist' => 'middlename'],
         ['ms' => 'Gender', 'aist' => 'gender'],
         ['ms' => 'BirthDate', 'aist' => 'birth_date'],
-        ['ms' => 'BirthDateIsUndefined', 'aist' => '', 'default' => 1],
+        ['ms' => 'BirthDateIsUndefined', 'aist' => '', 'default' => false],
 //        ['ms' => 'RegDate', 'aist' => ''],
 //        ['ms' => 'IdentityDocId', 'aist' => ''],
         ['ms' => 'RegAddressId', 'aist' => 'PersonAddresses'],//PersonAddresses id
@@ -96,7 +96,7 @@ class PersonCards extends Model
         ['ms' => 'CreateUserId', 'aist' => 'author_id', 'default' => -20],//test data
 //        ['ms' => 'LastModifiedDate', 'aist' => ''],
 //        ['ms' => 'LastModifiedUserId', 'aist' => ''],
-        ['ms' => 'DonorBarcode', 'aist' => 'donation_barcode'],
+//        ['ms' => 'DonorBarcode', 'aist' => 'donation_barcode'],
         ['ms' => 'Rh', 'aist' => 'rh_factor'],
         ['ms' => 'IsAgree', 'aist' => '', 'default' => true],
 //        ['ms' => 'AttachmentId', 'aist' => ''],

@@ -65,7 +65,7 @@ class SourceService
     public function createLog($name, $list)
     {
         $fields = Logs::FIELD;
-        $csvFileName = $name . '_conv_' . Carbon::now()->toDateString() . '.csv';
+        $csvFileName = $name . '_conv_' . Carbon::now()->toDateTimeString() . '.csv';
         $handle = fopen('php://temp/maxmemory:' . (5 * 1024 * 1024), 'r+');
         fputcsv($handle, $fields);
         foreach ($list as $donor) {

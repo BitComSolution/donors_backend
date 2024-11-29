@@ -13,5 +13,16 @@ class Logs extends Model
 
     protected $fillable = ['name', 'error', 'file'];
 
-    const FIELD = ['card_id', 'lastname', 'donation_id'];
+    const FIELD = [
+        'card_id',
+        'org_name',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'donation_id',
+        'donation_org_id',
+        'donation_date',
+        'validated'
+    ];
 }

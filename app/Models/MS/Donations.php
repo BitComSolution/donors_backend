@@ -35,9 +35,9 @@ class Donations extends Model
     const Fields = [
         ['ms' => 'UniqueId', 'aist' => 'donation_id'],
         ['ms' => 'DonorId', 'aist' => 'card_id'],
-        ['ms' => 'OrgId', 'aist' => 'org_ex_id', 'default' => 770100],//test data
-        ['ms' => 'DepartmentId', 'aist' => 'org_ex_id', 'default' => 0],//test data
-        ['ms' => 'DonationTypeId', 'aist' => 'donation_type_id'],
+        ['ms' => 'OrgId', 'aist' => 'donation_org_id'],
+        ['ms' => 'DepartmentId', 'aist' => 'donation_org_id', 'default' => 0],//test data
+        ['ms' => 'DonationTypeId', 'aist' => 'DonationTypeId'],
         ['ms' => 'DonationDate', 'aist' => 'donation_date'],
         ['ms' => 'Barcode', 'aist' => 'donation_barcode'],
         ['ms' => 'Volume', 'aist' => 'donation_volume'],
@@ -49,6 +49,6 @@ class Donations extends Model
 //        ['ms' => 'LastModifiedDate', 'aist' => ''],
 //        ['ms' => 'LastModifiedUserId', 'aist' => ''],
 //        ['ms' => 'DataInputMethod', 'aist' => ''],
-        ['ms' => 'ResultStatus', 'aist' => 'donation_analysis_result']
+        ['ms' => 'ResultStatus', 'aist' => 'donation_analysis_result', 'default' => 0],
     ];
 }

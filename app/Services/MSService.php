@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Models\Donors;
 use App\Models\MS\Donations;
+use App\Models\MS\DonationTypes;
 use App\Models\MS\IdentityDocs;
 use App\Models\MS\PersonAddresses;
 use App\Models\MS\PersonCards;
@@ -16,12 +17,14 @@ class MSService
     public function send()
     {
         $source = Source::where("validated", true)->get();
+        $don_type = DonationTypes::all()->pluck('UniqueId', 'Code');
         foreach ($source as $item) {
-            $item['gender'] = ("М" == $item['gender']) ? 0 : 1;
+            $item['gender'] = ("М" == $item['gender']) ? 1 : 2;
             $item['birth_date'] = Carbon::parse($item['birth_date'])->format('Y-d-m H:i:s');
             $item['created'] = Carbon::parse($item['created'])->format('Y-d-m H:i:s');
             $item['donation_date'] = Carbon::parse($item['donation_date'])->format('Y-d-m H:i:s');
             $item['research_date'] = Carbon::parse($item['research_date'])->format('Y-d-m H:i:s');
+            $item['DonationTypeId'] = $don_type[$item['donation_type_id']];
             if (!isset($item['address']) && !is_null($item['address']))
                 $item['PersonAddresses'] = PersonAddresses::firstOrCreate($this->createBody($item, PersonAddresses::Fields))['UniqueId'];
             $item['IdentityDocs'] = IdentityDocs::firstOrCreate($this->createBody($item, IdentityDocs::Fields));
