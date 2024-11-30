@@ -27,9 +27,9 @@ class MSService
         foreach ($source as $item) {
             try {
                 $item = $this->convertFields($item);
-                if (!isset($item['address']) && !is_null($item['address']))
+                if (isset($item['address']))
                     $item['PersonAddresses'] = PersonAddresses::firstOrCreate($this->createBody($item, PersonAddresses::Fields))['UniqueId'];
-                $item['IdentityDocs'] = IdentityDocs::firstOrCreate($this->createBody($item, IdentityDocs::Fields));
+                $item['IdentityDocs'] = IdentityDocs::firstOrCreate($this->createBody($item, IdentityDocs::Fields))['UniqueId'];
 
                 $card = PersonCards::where('UniqueId', $item['card_id'])->first();
                 if (is_null($card))

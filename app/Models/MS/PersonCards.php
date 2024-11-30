@@ -78,7 +78,7 @@ class PersonCards extends Model
         ['ms' => 'BirthDate', 'aist' => 'birth_date'],
         ['ms' => 'BirthDateIsUndefined', 'aist' => '', 'default' => false],
 //        ['ms' => 'RegDate', 'aist' => ''],
-//        ['ms' => 'IdentityDocId', 'aist' => ''],
+        ['ms' => 'IdentityDocId', 'aist' => 'IdentityDocs'],
         ['ms' => 'RegAddressId', 'aist' => 'PersonAddresses'],//PersonAddresses id
 //        ['ms' => 'FactAddressId', 'aist' => ''],
 //        ['ms' => 'Phone', 'aist' => ''],
@@ -89,7 +89,7 @@ class PersonCards extends Model
 //        ['ms' => 'NextDonationDate', 'aist' => ''],
         ['ms' => 'BloodGroup', 'aist' => 'blood_group'],
         ['ms' => 'Kell', 'aist' => 'kell'],
-        ['ms' > 'Phenotype', 'aist' => 'phenotype'],
+        ['ms' => 'Phenotype', 'aist' => 'phenotype'],
         ['ms' => 'RbcAntibody', 'aist' => 'anti_erythrocyte_antibodies'],
 //        ['ms' => 'DeathDate', 'aist' => ''],
         ['ms' => 'CreateDate', 'aist' => 'created'],
