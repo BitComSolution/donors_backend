@@ -10,6 +10,7 @@ class Donations extends Model
     use HasFactory;
 
     protected $connection = 'sqlsrv';
+    protected $primaryKey = 'UniqueId';
     protected $table = 'Donations';
     protected $fillable = [
         'UniqueId',

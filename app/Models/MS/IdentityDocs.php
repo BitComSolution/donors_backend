@@ -10,6 +10,7 @@ class IdentityDocs extends Model
     use HasFactory;
 
     protected $connection = 'sqlsrv';
+    protected $primaryKey = 'UniqueId';
     protected $table = 'IdentityDocs';
     protected $fillable = [
         'UniqueId'

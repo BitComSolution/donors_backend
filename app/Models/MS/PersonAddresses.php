@@ -10,6 +10,7 @@ class PersonAddresses extends Model
     use HasFactory;
 
     protected $connection = 'sqlsrv';
+    protected $primaryKey = 'UniqueId';
     protected $table = 'PersonAddresses';
     protected $fillable = [
         'UniqueId',

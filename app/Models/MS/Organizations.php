@@ -10,6 +10,7 @@ class Organizations extends Model
     use HasFactory;
 
     protected $connection = 'sqlsrv';
+    protected $primaryKey = 'UniqueId';
     protected $table = 'ref.Organizations';
     protected $fillable = [
         'UniqueId'

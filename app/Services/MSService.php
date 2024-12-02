@@ -34,8 +34,8 @@ class MSService
                 $card = PersonCards::where('UniqueId', $item['card_id'])->first();
                 if (is_null($card))
                     $item['PersonCards'] = PersonCards::create($this->createBody($item, PersonCards::Fields));
-//            else//обновление записей надо сделать
-//                $card->update($this->createBody($item, PersonCards::Fields));
+                else
+                    $card->update($this->createBody($item, PersonCards::Fields));
                 $donation = Donations::where('UniqueId', $item['donation_id'])->first();
                 if (is_null($donation))
                     $item['Donations'] = Donations::firstOrCreate($this->createBody($item, Donations::Fields));

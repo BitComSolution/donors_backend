@@ -11,6 +11,7 @@ class PersonCards extends Model
     use HasFactory;
 
     protected $connection = 'sqlsrv';
+    protected $primaryKey = 'UniqueId';
     protected $table = 'PersonCards';
     protected $fillable = [
         'UniqueId',
