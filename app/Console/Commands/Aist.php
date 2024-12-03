@@ -30,8 +30,14 @@ class Aist extends Command
      */
     public function handle()
     {
-        $sourceService = new SourceService;
-        $sourceService->sendCommand(Carbon::now()->subDays(30)->toDateString(), Carbon::now()->toDateString());
+        $command = Scheduled::where('title', 'aist')->first();
+        $date_next_start = Carbon::create($command['last_start'])->addHours($command['period_hours']);
+        if ($date_next_start < Carbon::now()) {
+            $sourceService = new SourceService;
+            $sourceService->sendCommand(Carbon::now()->subDays(30)->toDateString(), Carbon::now()->toDateString());
+            $command['last_start']=Carbon::now();
+            $command->save();
+        }
     }
 
 }

@@ -23,14 +23,8 @@ class DatabaseSeeder extends Seeder
         $data['email'] = 'admin@admin.ru';
         $data['password'] = Hash::make('passwordDonor!2024');
         User::create($data);
-
-        Scheduled::firstOrCreate([
-            'title' => 'dump'], [
-            'period_hours' => 1
-        ]);
-        Scheduled::firstOrCreate([
-            'title' => 'logs_clear'], [
-            'period_hours' => 1
+        $this->call([
+            CommandSeeder::class,
         ]);
 //        $donors = [
 //            [

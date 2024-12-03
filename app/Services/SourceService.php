@@ -16,6 +16,8 @@ class SourceService
 {
     public function dbSynchronize()
     {
+        $source = Source::all();
+        $source->each->delete();
         EventLog::create(['type' => 'ready']);
         $saved = Donors::all();
         $mysql = BloodData::whereNotIn('card_id', $saved->pluck('id_mysql'))->get()->values();
@@ -54,7 +56,7 @@ class SourceService
     public function createLog($name, $list)
     {
         $fields = Logs::FIELD;
-        $csvFileName = $name . '_conv_' . Carbon::now()->toDateTimeString() . '.csv';
+        $csvFileName = $name . '_conv_' . Carbon::now()->format("Y_m_d-H_i_s") . '.csv';
         $handle = fopen('php://temp/maxmemory:' . (5 * 1024 * 1024), 'r+');
         fputcsv($handle, $fields);
         foreach ($list as $donor) {

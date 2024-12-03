@@ -31,7 +31,7 @@ class Dump extends Command
     {
         $command = Scheduled::where('title', 'dump')->first();
         $date_next_start = Carbon::create($command['last_start'])->addHours($command['period_hours']);
-        if ($date_next_start > Carbon::now()) {//запуск скрипта по времени
+        if ($date_next_start < Carbon::now()) {//запуск скрипта по времени
             //взять данные из их приложения
             Source::all()->delete();//очистка доноров
             //загрузить новые данные
