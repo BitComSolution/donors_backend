@@ -37,6 +37,9 @@ class MSService
                 else
                     $card->update($this->createBody($item, PersonCards::Fields));
                 if (isset($item['donation_id'])) {
+                    if ($item['donation_type_id'] == 118 || $item['donation_type_id'] == 117)
+                        $item['donation_type_id'] = 110;
+                    $item['DonationTypeId'] = $this->donation_types[$item['donation_type_id']];
                     $donation = Donations::where('UniqueId', $item['donation_id'])->first();
                     if (is_null($donation))
                         $item['Donations'] = Donations::firstOrCreate($this->createBody($item, Donations::Fields));
@@ -68,7 +71,6 @@ class MSService
         $item['created'] = Carbon::parse($item['created'])->format('Y-d-m H:i:s');
         $item['donation_date'] = Carbon::parse($item['donation_date'])->format('Y-d-m H:i:s');
         $item['research_date'] = Carbon::parse($item['research_date'])->format('Y-d-m H:i:s');
-        $item['DonationTypeId'] = $this->donation_types[$item['donation_type_id']];
         $item['rh_factor'] = ("+" == $item['rh_factor']) ? 1 : -1;
         $item['kell'] = ("+" == $item['kell']) ? 1 : -1;
         $item['OrgId'] = $this->organizations[$item['kod_128']];
