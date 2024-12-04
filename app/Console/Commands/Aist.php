@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Logs;
-use App\Models\Source;
 use App\Services\SourceService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;

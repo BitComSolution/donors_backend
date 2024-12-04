@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Aist;
+use App\Jobs\MS;
 use App\Models\BloodComponentMain;
 use App\Models\BloodData;
 use App\Models\Source;
@@ -10,12 +12,13 @@ use App\Services\MSService;
 use App\Services\SourceService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class SourceController extends Controller
 {
     public function __construct(
         protected SourceService $sourceService,
-        protected MSService $MSService,)
+        protected MSService     $MSService,)
     {
     }
 
@@ -32,7 +35,8 @@ class SourceController extends Controller
 
     public function sendRequest()
     {
-        return $this->MSService->send();
+        MS::dispatch();
+        return true;
     }
 
     public function aist(Request $request)
@@ -44,7 +48,7 @@ class SourceController extends Controller
 
     public function ready(Request $request)
     {
-        $this->sourceService->dbSynchronize();
+        Aist::dispatch();
         return true;
     }
 

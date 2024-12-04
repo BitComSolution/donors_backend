@@ -36,9 +36,11 @@ class MSService
                     $item['PersonCards'] = PersonCards::create($this->createBody($item, PersonCards::Fields));
                 else
                     $card->update($this->createBody($item, PersonCards::Fields));
-                $donation = Donations::where('UniqueId', $item['donation_id'])->first();
-                if (is_null($donation))
-                    $item['Donations'] = Donations::firstOrCreate($this->createBody($item, Donations::Fields));
+                if (isset($item['donation_id'])) {
+                    $donation = Donations::where('UniqueId', $item['donation_id'])->first();
+                    if (is_null($donation))
+                        $item['Donations'] = Donations::firstOrCreate($this->createBody($item, Donations::Fields));
+                }
                 Donors::create(['id_mysql' => $item['card_id']]);
             } catch (\Exception $exception) {
 //                dump($exception->getMessage());

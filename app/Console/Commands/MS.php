@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Logs;
-use App\Models\Source;
 use App\Services\MSService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -30,8 +28,14 @@ class MS extends Command
      */
     public function handle()
     {
-        $MSService = new MSService;
-        $MSService->send();
+        $command = Scheduled::where('title', 'aist')->first();
+        $date_next_start = Carbon::create($command['last_start'])->addHours($command['period_hours']);
+        if ($date_next_start < Carbon::now()) {
+            $MSService = new MSService;
+            $MSService->send();
+            $command['last_start']=Carbon::now();
+            $command->save();
+        }
     }
 
 }
