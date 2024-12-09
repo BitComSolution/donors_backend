@@ -37,19 +37,19 @@ class Donations extends Model
         ['ms' => 'UniqueId', 'aist' => 'donation_id'],
         ['ms' => 'DonorId', 'aist' => 'card_id'],
         ['ms' => 'OrgId', 'aist' => 'donation_org_128'],
-        ['ms' => 'DepartmentId', 'aist' => 'donation_org_id', 'default' => 0],//test data
+        ['ms' => 'DepartmentId', 'aist' => 'donation_org_id', 'default' => 'const.Donations.DepartmentId'],
         ['ms' => 'DonationTypeId', 'aist' => 'DonationTypeId'],
         ['ms' => 'DonationDate', 'aist' => 'donation_date'],
         ['ms' => 'Barcode', 'aist' => 'donation_barcode'],
         ['ms' => 'Volume', 'aist' => 'donation_volume'],
-        ['ms' => 'PublicationDate', 'aist' => 'research_date'],
+//        ['ms' => 'PublicationDate', 'aist' => 'research_date'],
 //        ['ms' => 'MobileTeamSessionId', 'aist' => ''],
-        ['ms' => 'IsDeleted', 'aist' => '', 'default' => 'false'],
+        ['ms' => 'IsDeleted', 'aist' => '', 'default' => 'const.Donations.IsDeleted'],
         ['ms' => 'CreateDate', 'aist' => 'created'],
-        ['ms' => 'CreateUserId', 'aist' => 'author_id', 'default' => -20],//test data
-//        ['ms' => 'LastModifiedDate', 'aist' => ''],
+        ['ms' => 'CreateUserId', 'aist' => 'author_id', 'default' => 'const.Donations.CreateUserId'],
+        ['ms' => 'LastModifiedDate', 'aist' => 'LastModifiedDate'],
 //        ['ms' => 'LastModifiedUserId', 'aist' => ''],
 //        ['ms' => 'DataInputMethod', 'aist' => ''],
-        ['ms' => 'ResultStatus', 'aist' => 'donation_analysis_result', 'default' => 0],
+        ['ms' => 'ResultStatus', 'aist' => 'donation_analysis_result', 'default' => 'const.Donations.ResultStatus'],
     ];
 }

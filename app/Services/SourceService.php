@@ -25,6 +25,10 @@ class SourceService
         $error = [];
         foreach ($mysql as $donor) {
             $data = $donor->getOriginal();
+            foreach (Source::TRANS_FIELDS as $field) {
+                if (isset($data[$field]))
+                    $data[$field] = str_replace(Source::SYMBOLS, "", $data[$field]);
+            }
             unset($data['Id']);
             try {
                 $validator = Validator::make($data, Source::RULE);
@@ -77,4 +81,5 @@ class SourceService
     {
         EventLog::create(['type' => 'fail']);
     }
+
 }

@@ -12,6 +12,7 @@ use App\Models\MS\PersonAddresses;
 use App\Models\MS\PersonCards;
 use App\Models\Source;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class MSService
 {
@@ -46,7 +47,8 @@ class MSService
                 }
                 Donors::create(['id_mysql' => $item['card_id']]);
             } catch (\Exception $exception) {
-//                dump($exception->getMessage());
+                Log::channel('ms')->info('Error ' . $item['card_id'] .'  '. $exception->getMessage());
+                dump($exception->getMessage());
             }
         }
         $source = Source::all();
@@ -59,7 +61,7 @@ class MSService
     {
         $body = [];
         foreach ($fields as $field) {
-            $body[$field['ms']] = (!isset($field['default'])) ? $item[$field['aist']] : $field['default'];
+            $body[$field['ms']] = (!isset($field['default'])) ? $item[$field['aist']] : config($field['default']);
         }
         return $body;
     }
@@ -71,6 +73,7 @@ class MSService
         $item['created'] = Carbon::parse($item['created'])->format('Y-d-m H:i:s');
         $item['donation_date'] = Carbon::parse($item['donation_date'])->format('Y-d-m H:i:s');
         $item['research_date'] = Carbon::parse($item['research_date'])->format('Y-d-m H:i:s');
+        $item['LastModifiedDate'] = Carbon::now()->format('Y-d-m H:i:s');
         $item['rh_factor'] = ("+" == $item['rh_factor']) ? 1 : -1;
         $item['kell'] = ("+" == $item['kell']) ? 1 : -1;
         $item['OrgId'] = $this->organizations[$item['kod_128']];

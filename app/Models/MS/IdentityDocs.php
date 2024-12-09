@@ -23,7 +23,7 @@ class IdentityDocs extends Model
     public $timestamps = false;
 
     const Fields = [
-        ['ms' => 'DocType', 'aist' => 'document_type', 'default' => 1],
+        ['ms' => 'DocType', 'aist' => 'document_type', 'default' => 'const.IdentityDocs.DocType'],
         ['ms' => 'Serie', 'aist' => 'document_serial'],
         ['ms' => 'Number', 'aist' => 'document_number'],
 //        ['ms' => 'IssueDate', 'aist' => ' '],

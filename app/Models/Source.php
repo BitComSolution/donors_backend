@@ -21,7 +21,7 @@ class Source extends Model
 //        'gender' => [''],
 //        'birth_date' => ['required', 'date_format:dd.mm.yyyy'],//как в тз
         'birth_date' => ['required', 'date_format:Y-m-d'],//как в бд
-        'snils' => ['required', 'regex:/^[\.\- \d]*/u'],
+        'snils' => ['required', 'regex:/^(\d{11})$/u'],
 ////в исходной базе лежат не правильные данные /^\d{3}.\d{3}.\d{3}.\d{2}/u'
         'blood_group' => ['integer', 'between:1,4'],
         'rh_factor' => ['regex:/^[+-]{1}/u'],
@@ -38,9 +38,15 @@ class Source extends Model
         'donation_volume' => ['required', 'between:1,800'],
 //        'address' => ['regex:/^[А-Яа-я\- .\d\/]+/u'],//в исходной базе лежат не правильные данные
         'document_type' => ['required'],
-        'document_serial' => ['required'],
-        'document_number' => ['required'],
+        'document_serial' => ['required', 'regex:/^(\d{4})$/u'],
+        'document_number' => ['required', 'regex:/^(\d{6})$/u'],
         'anti_erythrocyte_antibodies' => ['regex:/^[0+1-]{1}$/u'],
     ];
-
+    const TRANS_FIELDS = [
+        'snils',
+        'document_serial',
+        'document_number'
+    ];
+    const SYMBOLS =
+        [' ', '-', '.', '_'];
 }
