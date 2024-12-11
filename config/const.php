@@ -3,22 +3,22 @@
 return [
     'PersonCards' =>
         [
-            'CreateUserId' => env('PersonCardsCreateUserId', -20),
-            'BirthDateIsUndefined' => env('PersonCardsCreateUserId', false),
-            'IsAgree' => env('PersonCardsCreateUserId', true),
-            'IsDeleted' => env('PersonCardsCreateUserId', false),
-            'IsMessageAgree' => env('PersonCardsCreateUserId', true),
+            'CreateUserId' => intval(env('PersonCardsCreateUserId', -20)),
+            'BirthDateIsUndefined' => env('PersonCardsBirthDateIsUndefined', false),
+            'IsAgree' => env('PersonCardsIsAgree', true),
+            'IsDeleted' => env('PersonCardsIsDeleted', false),
+            'IsMessageAgree' => env('PersonCardsIsMessageAgree', true),
         ],
     'IdentityDocs' =>
         [
-            'DocType' => env('IdentityDocsCreateUserId', 1),
+            'DocType' => env('IdentityDocsDocType', 1),
         ],
     'Donations' =>
         [
-            'DepartmentId' => env('DonationsCreateUserId', 0),
-            'IsDeleted' => env('DonationsCreateUserId', false),
-            'CreateUserId' => env('DonationsCreateUserId', -20),
-            'ResultStatus' => env('DonationsCreateUserId', 0),
+            'DepartmentId' => intval(env('DonationsDepartmentId', 0)),
+            'IsDeleted' => env('DonationsIsDeleted', false),
+            'CreateUserId' => intval(env('DonationsCreateUserId', -20)),
+            'ResultStatus' => intval(env('DonationsResultStatus', 0)),
         ]
 
 ];

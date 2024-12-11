@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\BloodData;
 use App\Models\Donors;
 use App\Models\EventLog;
 use App\Models\Logs;
 use App\Models\Source;
+use App\Models\TWO\BloodData;
+use App\Models\TWO\Otvod as OtvodMS;
+use App\Models\Otvod;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -18,18 +20,15 @@ class SourceService
     {
         $source = Source::all();
         $source->each->delete();
+        $otvod = Otvod::all();
+        $otvod->each->delete();
         EventLog::create(['type' => 'ready']);
         $saved = Donors::all();
         $mysql = BloodData::whereNotIn('card_id', $saved->pluck('id_mysql'))->get()->values();
         $all = [];
         $error = [];
         foreach ($mysql as $donor) {
-            $data = $donor->getOriginal();
-            foreach (Source::TRANS_FIELDS as $field) {
-                if (isset($data[$field]))
-                    $data[$field] = str_replace(Source::SYMBOLS, "", $data[$field]);
-            }
-            unset($data['Id']);
+            $data = $this->transformData(Source::class, $donor);
             try {
                 $validator = Validator::make($data, Source::RULE);
                 $data['validated'] = !$validator->fails();
@@ -44,6 +43,29 @@ class SourceService
             $this->createLog('all', $all);
         if (!empty($error))
             $this->createLog('bad', $error);
+
+
+        $all = [];
+        $error = [];
+        $otvodMS = OtvodMS::all();
+        foreach ($otvodMS as $ms) {
+            $data = $this->transformData(Otvod::class, $ms);
+            try {
+                $data['created'] = $data['ex_created'];
+                unset($data['ex_created']);
+//                $validator = Validator::make($data, Otvod::RULE);
+//                $data['validated'] = !$validator->fails();
+                Otvod::create($data);
+                $all[] = $data;
+            } catch (\Exception $exception) {
+                $error[] = $data;
+                continue;
+            }
+        }
+//        if (!empty($all))
+//            $this->createLog('otvod_all', $all);
+//        if (!empty($error))
+//            $this->createLog('otvod_bad', $error);
         return [];
     }
 
@@ -82,4 +104,14 @@ class SourceService
         EventLog::create(['type' => 'fail']);
     }
 
+    private function transformData($model, $data)
+    {
+        $data = $data->getOriginal();
+        foreach ($model::TRANS_FIELDS as $field) {
+            if (isset($data[$field]))
+                $data[$field] = str_replace($model::SYMBOLS, "", $data[$field]);
+        }
+        unset($data['Id']);
+        return $data;
+    }
 }
