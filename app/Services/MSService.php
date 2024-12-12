@@ -112,7 +112,7 @@ class MSService
 
             $card = PersonCards::where('Snils', $item['snils'])->first();
             if (is_null($card)) {
-                $pers_card = PersonCards::orderByDesc('UniqueId')->limit(1)->first()['UniqueId'];
+                $pers_card = PersonCards::orderByDesc('UniqueId')->limit(1)->first();
                 if (is_null($pers_card) || $pers_card['UniqueId'] < config('const.PersonCards.UniqueIdMIN'))
                     $item['card_id'] = config('const.PersonCards.UniqueIdMIN');
                 else
