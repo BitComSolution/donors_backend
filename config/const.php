@@ -8,10 +8,11 @@ return [
             'IsAgree' => env('PersonCardsIsAgree', true),
             'IsDeleted' => env('PersonCardsIsDeleted', false),
             'IsMessageAgree' => env('PersonCardsIsMessageAgree', true),
+            'UniqueIdMIN' => intval(env('PersonCardsUniqueIdMIN', 400000000)),
         ],
     'IdentityDocs' =>
         [
-            'DocType' => env('IdentityDocsDocType', 1),
+            'DocType' => intval(env('IdentityDocsDocType', 1)),
         ],
     'Donations' =>
         [
@@ -19,6 +20,7 @@ return [
             'IsDeleted' => env('DonationsIsDeleted', false),
             'CreateUserId' => intval(env('DonationsCreateUserId', -20)),
             'ResultStatus' => intval(env('DonationsResultStatus', 0)),
+            'UniqueIdMIN' => intval(env('DonationsUniqueIdMIN', 400000000)),
         ]
 
 ];

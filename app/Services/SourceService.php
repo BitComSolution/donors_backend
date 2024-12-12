@@ -53,8 +53,8 @@ class SourceService
             try {
                 $data['created'] = $data['ex_created'];
                 unset($data['ex_created']);
-//                $validator = Validator::make($data, Otvod::RULE);
-//                $data['validated'] = !$validator->fails();
+                $validator = Validator::make($data, Otvod::RULE);
+                $data['validated'] = !$validator->fails();
                 Otvod::create($data);
                 $all[] = $data;
             } catch (\Exception $exception) {
