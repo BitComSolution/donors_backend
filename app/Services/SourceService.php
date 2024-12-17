@@ -30,7 +30,13 @@ class SourceService
         foreach ($mysql as $donor) {
             $data = $this->transformData(Source::class, $donor);
             try {
-                $validator = Validator::make($data, Source::RULE);
+                $rule = Source::RULE;
+                $rule = array_merge($rule, $this->GetRuleDoc($data));
+                $this->phenotype($data);
+                $validator = Validator::make($data, $rule);
+//                if($validator->fails())
+//                    dump($data['card_id']);
+//                    dd($validator->failed());
                 $data['validated'] = !$validator->fails();
                 Source::create($data);
                 $all[] = $data;
@@ -53,7 +59,10 @@ class SourceService
             try {
                 $data['created'] = $data['ex_created'];
                 unset($data['ex_created']);
-                $validator = Validator::make($data, Otvod::RULE);
+                $rule = Otvod::RULE;
+                $rule = array_merge($rule, $this->GetRuleDoc($data));
+                $this->phenotype($data);
+                $validator = Validator::make($data, $rule);
                 $data['validated'] = !$validator->fails();
                 Otvod::create($data);
                 $all[] = $data;
@@ -113,5 +122,75 @@ class SourceService
         }
         unset($data['Id']);
         return $data;
+    }
+
+    private function GetRuleDoc(&$item)
+    {
+        $item['document_number'] = $this->addZero($item['document_number']);
+        if (strlen($item['document_serial']) == 3) {
+            $item['document_type'] = config('const.DocType.VNG');
+            $rules = ['document_serial' => ['required', 'regex:/^(\d{3})$/u'],
+                'document_number' => ['required', 'regex:/^(\d{1,7})$/u']];
+
+        } elseif (preg_match('/[A-Za-z]/', $item['document_serial'])) {
+            $item['document_type'] = config('const.DocType.INPassport');
+            $rules = ['document_serial' => ['required', 'regex:/^([\da-zA-Z]{1,5})$/u'],
+                'document_number' => ['required', 'regex:/^(\d{1,7})$/u']];
+
+        } else {
+            $item['document_type'] = config('const.DocType.Passport');
+            $rules = ['document_serial' => ['required', 'regex:/^(\d{4})$/u'],
+                'document_number' => ['required', 'regex:/^(\d{6})$/u']];
+        }
+
+        return $rules;
+    }
+
+    private function addZero($string)
+    {
+        while (strlen($string) < 6) {
+            $string = '0' . $string;
+        }
+        return $string;
+    }
+
+    private function phenotype(&$item)
+    {
+        $phenotype = '';
+        if (preg_match('/[A-Za-z]/', $item['phenotype'])) {
+
+            $phenotype_array = str_replace('dd', "d", $item['phenotype']);
+            $pos = stripos($phenotype_array, '_w');
+            $three = ($pos !== false) ? 2 : 1;
+            $phenotype_array = str_replace('_w', "", $phenotype_array);
+            $phenotype_array = str_split($phenotype_array);
+            $ph = ['C', 'c', 'D', 'E', 'e'];
+            foreach ($ph as $key => $value) {
+                if ($key == 2)
+                    $phenotype .= $three;
+                $phenotype .= ($phenotype_array[$key] == $value) ? 2 : 1;
+
+            }
+        } else {
+            foreach (str_split($item['phenotype']) as $phen) {
+                switch ($phen) {
+                    case "+":
+                    {
+                        $phenotype .= 2;
+                        break;
+                    }
+                    case "-":
+                    {
+                        $phenotype .= 1;
+                        break;
+                    }
+                    default:
+                    {
+                        $phenotype .= 0;
+                    }
+                }
+            }
+        }
+        $item['phenotype'] = intval($phenotype);
     }
 }

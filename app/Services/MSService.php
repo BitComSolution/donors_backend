@@ -77,27 +77,13 @@ class MSService
             $item['donation_date'] = Carbon::parse($item['donation_date'])->format('Y-d-m H:i:s');
         if (isset($item['research_date']))
             $item['research_date'] = Carbon::parse($item['research_date'])->format('Y-d-m H:i:s');
-
-        $phenotype = '';
-        foreach (str_split($item['phenotype']) as $phen) {
-            switch ($phen) {
-                case "+":
-                {
-                    $phenotype .= 2;
-                    break;
-                }
-                case "-":
-                {
-                    $phenotype .= 1;
-                    break;
-                }
-                default:
-                {
-                    $phenotype .= 0;
-                }
-            }
+        if ($item['document_type'] == config('const.DocType.VNG')) {
+            $document = $item['document_serial'] . $item['document_number'];
+            $item['document_serial'] = mb_substr($document, 0, 2);
+            $item['document_number'] = mb_substr($document, 2, 100);
         }
-        $item['phenotype'] = intval($phenotype);
+
+        $item['phenotype'] = intval($item['phenotype']);
 
         return $item;
     }
@@ -123,8 +109,10 @@ class MSService
                 $card->update($this->createBody($item, PersonCards::Fields));
             }
             if (isset($item['donation_id'])) {
-                if ($item['donation_type_id'] == 118 || $item['donation_type_id'] == 117)
-                    $item['donation_type_id'] = 110;
+                $types = config('const.DonationType');
+                if (isset($types[$item['donation_type_id']])) {
+                    $item['donation_type_id'] = $types[$item['donation_type_id']];
+                }
                 $item['DonationTypeId'] = $this->donation_types[$item['donation_type_id']];
                 $donation = Donations::where('Barcode', $item['donation_barcode'])->first();
                 if (is_null($donation)) {

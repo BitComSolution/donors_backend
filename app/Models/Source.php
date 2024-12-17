@@ -26,7 +26,7 @@ class Source extends Model
         'blood_group' => ['integer', 'between:1,4'],
         'rh_factor' => ['regex:/^[+-]{1}/u'],
         'kell' => ['regex:/^[+-]{1}/u'],
-        'phenotype' => ['regex:/^[+ -]{6,7}/u'],
+        'phenotype' => ['regex:/^\d{4,10}/u'],
         'document' => ['required'],
         'donation_id' => ['required', 'regex:/^(\d{12})$/u'],
         'donor_card_id' => ['required'],
@@ -38,8 +38,8 @@ class Source extends Model
         'donation_volume' => ['required', 'between:1,800'],
 //        'address' => ['regex:/^[А-Яа-я\- .\d\/]+/u'],//в исходной базе лежат не правильные данные
         'document_type' => ['required'],
-        'document_serial' => ['required', 'regex:/^(\d{4})$/u'],
-        'document_number' => ['required', 'regex:/^(\d{6})$/u'],
+//        'document_serial' => ['required', 'regex:/^(\d{4})$/u'],
+//        'document_number' => ['required', 'regex:/^(\d{6})$/u'],
         'anti_erythrocyte_antibodies' => ['regex:/^[0+1-]{1}$/u'],
     ];
     const TRANS_FIELDS = [

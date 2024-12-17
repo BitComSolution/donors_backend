@@ -38,8 +38,8 @@ class Otvod extends Model
 //        'donation_volume' => ['required', 'between:1,800'],
 //        'address' => ['regex:/^[А-Яа-я\- .\d\/]+/u'],//в исходной базе лежат не правильные данные
 //        'document_type' => ['required'],
-        'document_serial' => ['required', 'regex:/^(\d{4})$/u'],
-        'document_number' => ['required', 'regex:/^(\d{6})$/u'],
+//        'document_serial' => ['required', 'regex:/^(\d{4})$/u'],
+//        'document_number' => ['required', 'regex:/^(\d{6})$/u'],
 //        'anti_erythrocyte_antibodies' => ['regex:/^[0+1-]{1}$/u'],
     ];
     const TRANS_FIELDS = [

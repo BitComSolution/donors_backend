@@ -21,6 +21,25 @@ return [
             'CreateUserId' => intval(env('DonationsCreateUserId', -20)),
             'ResultStatus' => intval(env('DonationsResultStatus', 0)),
             'UniqueIdMIN' => intval(env('DonationsUniqueIdMIN', 400000000)),
+        ],
+    'DocType' =>
+        [
+            'Passport' => intval(env('Passport', 1)),
+            'VNG' => intval(env('VNG', 2)),
+            'INPassport' => intval(env('INPassport', 3)),
+        ],
+    'DonationType' =>
+        [
+            '001' => '001',
+            '110' => '110',
+            '117' => '110',
+            '118' => '110',
+            '125' => '129',
+            '127' => '129',
+            '129' => '129',
+            '130' => '130',
+            '136' => '130',
+            '137' => '130',
+            '230' => '',
         ]
-
 ];
