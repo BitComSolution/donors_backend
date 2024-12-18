@@ -15,9 +15,9 @@ class Source extends Model
 
     const RULE = [
         'card_id' => ['required'],
-        'lastname' => ['required', 'regex:/^[А-Я]{1}[А-Яа-я\-]+/u'],
-        'name' => ['required', 'regex:/^[А-Я]{1}[А-Яа-я\-]+/u'],
-        'middlename' => ['regex:/^[А-Я]{1}[А-Яа-я\- ]+/u'],
+        'lastname' => ['required', 'regex:/^[А-Я]{1}[А-ЯёЁа-я\-]+/u'],
+        'name' => ['required', 'regex:/^[А-Я]{1}[А-ЯёЁа-я\-]+/u'],
+        'middlename' => ['regex:/^[А-Я]{1}[А-ЯёЁа-я\- ]+/u'],
 //        'gender' => [''],
 //        'birth_date' => ['required', 'date_format:dd.mm.yyyy'],//как в тз
         'birth_date' => ['required', 'date_format:Y-m-d'],//как в бд
