@@ -21,7 +21,8 @@ class SourceController extends Controller
 
     public function getListDonors(Request $request)
     {
-        $source = Source::where("validated", $request->get('validated', true));
+        $valid = ($request->get('validated', true) == "true") ? 1 : 0;
+        $source = Source::where("validated", $valid);
         return response()->json($source->paginate($request->get('per_page', 50)));
     }
 
@@ -32,6 +33,9 @@ class SourceController extends Controller
 
     public function sendRequest()
     {
+        //debug
+//        $MSService = new MSService;
+//        $MSService->send();
         MS::dispatch();
         return true;
     }
@@ -45,6 +49,9 @@ class SourceController extends Controller
 
     public function ready(Request $request)
     {
+        //debug
+//        $sourceService = new SourceService;
+//        $sourceService->dbSynchronize();
         Aist::dispatch();
         return true;
     }

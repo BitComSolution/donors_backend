@@ -63,12 +63,23 @@ class MSService
 
     private function convertFields($item)
     {
-        $item['gender'] = ("М" == $item['gender']) ? 1 : 2;
+        if (!is_null($item['gender'])) {
+            $item['gender'] = ("М" == $item['gender']) ? 1 : 2;
+        } elseif (!is_null($item['middlename'])) {
+            $item['gender'] = (substr(strtolower($item['middlename']), -2) === 'ич') ? 1 : 2;
+        }
+        $item['address'] = str_replace('Прочие регионы, ', "", $item['address']);
         $item['birth_date'] = Carbon::parse($item['birth_date'])->format('Y-d-m H:i:s');
         $item['created'] = Carbon::parse($item['created'])->format('Y-d-m H:i:s');
         $item['LastModifiedDate'] = Carbon::now()->addHours(3)->format('Y-d-m H:i:s');
-        $item['rh_factor'] = ("+" == $item['rh_factor']) ? 1 : -1;
-        $item['kell'] = ("+" == $item['kell']) ? 1 : -1;
+        if ("+" == $item['rh_factor'])
+            $item['rh_factor'] = 1;
+        if ("-" == $item['rh_factor'])
+            $item['rh_factor'] = -1;
+        if ("+" == $item['kell'])
+            $item['kell'] = 1;
+        if ("-" == $item['kell'])
+            $item['kell'] = -1;
         $item['OrgId'] = $this->organizations[$item['kod_128']];
 
         if (isset($item['donation_org_128']))
