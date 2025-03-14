@@ -63,10 +63,13 @@ class MSService
 
     private function convertFields($item)
     {
-        if (!is_null($item['gender'])) {
-            $item['gender'] = ("М" == $item['gender']) ? 1 : 2;
+        if (!((empty($item['gender']))||(is_null($item['gender'])))) {
+            if ("М" == strtoupper($item['gender']))
+                $item['gender'] = 1;
+            if ("Ж" == strtoupper($item['gender']))
+                $item['gender'] = 2;
         } elseif (!is_null($item['middlename'])) {
-            $item['gender'] = (substr(strtolower($item['middlename']), -2) === 'ич') ? 1 : 2;
+            $item['gender'] = (preg_match('(.*ич\z)',strtolower($item['middlename']))) ? 1 : 2;
         }
         $item['address'] = str_replace('Прочие регионы, ', "", $item['address']);
         $item['birth_date'] = Carbon::parse($item['birth_date'])->format('Y-d-m H:i:s');

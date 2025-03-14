@@ -160,14 +160,14 @@ class SourceService
         if (preg_match('/[A-Za-z]/', $item['phenotype'])) {
 
             $phenotype_array = str_replace('dd', "d", $item['phenotype']);
-            $pos = stripos($phenotype_array, '_w');
-            $three = ($pos !== false) ? 2 : 1;
+//            $pos = stripos($phenotype_array, '_w');
+//            $three = ($pos !== false) ? 2 : 1;
             $phenotype_array = str_replace('_w', "", $phenotype_array);
             $phenotype_array = str_split($phenotype_array);
             $ph = ['C', 'c', 'D', 'E', 'e'];
             foreach ($ph as $key => $value) {
-                if ($key == 2)
-                    $phenotype .= $three;
+//                if ($key == 2)
+//                    $phenotype .= $three;
                 $phenotype .= ($phenotype_array[$key] == $value) ? 2 : 1;
 
             }
@@ -182,6 +182,10 @@ class SourceService
                     case "-":
                     {
                         $phenotype .= 1;
+                        break;
+                    }
+                    case "%": {
+                        $phenotype .= 3;
                         break;
                     }
                     default:
