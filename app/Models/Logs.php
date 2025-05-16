@@ -12,17 +12,4 @@ class Logs extends Model
     protected $connection = 'pgsql';
 
     protected $fillable = ['name', 'error', 'file'];
-
-    const FIELD = [
-        'card_id',
-        'org_name',
-        'name',
-        'middlename',
-        'gender',
-        'birth_date',
-        'donation_id',
-        'donation_org_id',
-        'donation_date',
-        'validated'
-    ];
 }

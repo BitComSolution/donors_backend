@@ -49,4 +49,22 @@ class Otvod extends Model
     ];
     const SYMBOLS =
         [' ', '-', '.', '_'];
+
+    const LOG_NAME = 'otvod';
+
+    const LOG_FIELD = [
+        'card_id',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'validated'
+    ];
+
+    const DATE_FIELDS = ['birth_date', 'created', 'donation_date', 'research_date'];
+
+    public static function transform($service, $item)
+    {
+        return $service->OtvodConvert($item->getOriginal());
+    }
 }

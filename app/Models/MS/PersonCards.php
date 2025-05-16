@@ -91,7 +91,7 @@ class PersonCards extends Model
         ['ms' => 'BloodGroup', 'aist' => 'blood_group'],
         ['ms' => 'Kell', 'aist' => 'kell'],
         ['ms' => 'Phenotype', 'aist' => 'phenotype'],
-        ['ms' => 'RbcAntibody', 'aist' => 'anti_erythrocyte_antibodies'],
+//        ['ms' => 'RbcAntibody', 'aist' => 'anti_erythrocyte_antibodies'],
 //        ['ms' => 'DeathDate', 'aist' => ''],
         ['ms' => 'CreateDate', 'aist' => 'created'],
         ['ms' => 'CreateUserId', 'aist' => 'author_id', 'default' => 'const.PersonCards.CreateUserId'],//test data
@@ -120,7 +120,10 @@ class PersonCards extends Model
 //        ['ms' => 'RegDateInactive', 'aist' => ''],
 //        ['ms' => 'FactDateInactive', 'aist' => ''],
 //        ['ms' => 'TempDateInactive', 'aist' => ''],
-//        ['ms' => 'HemStemCellsDonor', 'aist' => ''],
+        ['ms' => 'HemStemCellsDonor', 'aist' => '', 'default' => 'const.PersonCards.IsMessageAgree'],
 //        ['ms' => 'InvitationSmsDate', 'aist' => ''],
     ];
+    const ID = 'card_id';
+    const NAME = 'PersonCards';
+
 }
