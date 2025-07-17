@@ -3,6 +3,7 @@
 namespace App\Services;
 
 
+use App\Models\Analysis;
 use App\Models\MS\DonationTypes;
 use App\Models\MS\Organizations;
 use App\Models\Otvod;
@@ -70,6 +71,29 @@ class DataService
         $this->phenotype();
 //        dump($item);
 //        dd($this->convert_item);
+        return $this->convert_item;
+    }
+
+    public function AnalysisConvert($item)
+    {
+        $model = Analysis::class;
+        $item['rh_factor'] = $item['rh'];
+        $item['created'] = Carbon::now()->addHours(3)->format('Y-d-m H:i:s');
+        unset($item['rh']);
+        $this->convert_item = $item;
+        $this->date_fields = $model::DATE_FIELDS;
+        $this->OrgId();
+        $this->transformData($model);
+        $this->gender();
+        $this->address();
+        $this->dates();
+        $this->LastModifiedDate();
+        $this->rh_factor();
+        $this->kell();
+        $this->phenotype();
+//       dd( array_diff($item, $this->convert_item));//показывает какие строчки поменялись
+//        dump($item);//исходный
+//        dd($this->convert_item);//готовый
         return $this->convert_item;
     }
 
@@ -188,47 +212,52 @@ class DataService
 
     private function phenotype()
     {
-        $phenotype = '';
-        if (preg_match('/[A-Za-z]/', $this->convert_item['phenotype'])) {
 
-            $phenotype_array = str_replace('dd', "d", $this->convert_item['phenotype']);
-            $pos = stripos($phenotype_array, '_w');
-            $three = ($pos !== false) ? 2 : 1;
-            $phenotype_array = str_replace('_w', "", $phenotype_array);
-            $phenotype_array = str_split($phenotype_array);
-            $ph = ['C', 'c', 'D', 'E', 'e'];
-            foreach ($ph as $key => $value) {
-                if ($key == 2)
-                    $phenotype .= $three;
-                $phenotype .= ($phenotype_array[$key] == $value) ? 2 : 1;
+        try {
+            $phenotype = '';
+            if (preg_match('/[A-Za-z]/', $this->convert_item['phenotype'])) {
 
-            }
-        } else {
-            foreach (str_split($this->convert_item['phenotype']) as $phen) {
-                switch ($phen) {
-                    case "+":
-                    {
-                        $phenotype .= 2;
-                        break;
-                    }
-                    case "-":
-                    {
-                        $phenotype .= 1;
-                        break;
-                    }
-                    case "%":
-                    {
-                        $phenotype .= 3;
-                        break;
-                    }
-                    default:
-                    {
-                        $phenotype .= 0;
+                $phenotype_array = str_replace('dd', "d", $this->convert_item['phenotype']);
+                $pos = stripos($phenotype_array, '_w');
+                $three = ($pos !== false) ? 2 : 1;
+                $phenotype_array = str_replace('_w', "", $phenotype_array);
+                $phenotype_array = str_split($phenotype_array);
+                $ph = ['C', 'c', 'D', 'E', 'e'];
+                foreach ($ph as $key => $value) {
+                    if ($key == 2)
+                        $phenotype .= $three;
+                    $phenotype .= ($phenotype_array[$key] == $value) ? 2 : 1;
+
+                }
+            } else {
+                foreach (str_split($this->convert_item['phenotype']) as $phen) {
+                    switch ($phen) {
+                        case "+":
+                        {
+                            $phenotype .= 2;
+                            break;
+                        }
+                        case "-":
+                        {
+                            $phenotype .= 1;
+                            break;
+                        }
+                        case "%":
+                        {
+                            $phenotype .= 3;
+                            break;
+                        }
+                        default:
+                        {
+                            $phenotype .= 0;
+                        }
                     }
                 }
             }
+            $this->convert_item['phenotype'] = intval($phenotype);
+        } catch (\Exception $exception) {
+            dump($this->convert_item['phenotype']);
         }
-        $this->convert_item['phenotype'] = intval($phenotype);
     }
 
     private function donation_type_id()

@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Models;
+
+use App\Services\DataService;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Analysis extends Model
+{
+    use HasFactory;
+
+    protected $connection = 'pgsql';
+
+    protected $guarded = [];
+
+    const RULE = [
+        'lastname' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
+        'name' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
+        'middlename' => ['regex:/^(?:[А-ЯЁ][А-ЯёЁа-я -]+)?$/u'],
+        'snils' => ['required', 'regex:/^(\d{11})$/u'],
+        'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
+        'kell' => ['regex:/^[\d-]{1}/u'],
+        'birth_date' => ['required', 'date_format:Y-d-m H:i:s'],
+        'phenotype' => ['integer', 'regex:/^\d{0,10}/u'],
+
+    ];
+    const TRANS_FIELDS = [
+        'snils',
+        'document_serial',
+        'document_number'
+    ];
+    const SYMBOLS =
+        [' ', '-', '.', '_'];
+
+    const LOG_NAME = 'analysis';
+
+    const LOG_FIELD = [
+        'name', 'middlename', 'lastname', 'snils'
+    ];
+
+    const DATE_FIELDS = [
+        'birth_date', 'analysis_date',
+
+    ];
+
+    public static function transform($service, $item)
+    {
+        return $service->AnalysisConvert($item->getOriginal());
+    }
+}
+

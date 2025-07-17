@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Analysis;
 use App\Models\Donors;
 use App\Models\EventLog;
 use App\Models\Logs;
 use App\Models\Source;
+use App\Models\TWO\AnalcliData;
 use App\Models\TWO\BloodData;
 use App\Models\TWO\Otvod as OtvodAist;
 use App\Models\Otvod;
@@ -26,6 +28,8 @@ class SourceService
         $source->each->delete();
         $otvod = Otvod::all();
         $otvod->each->delete();
+        $analysis = Analysis::all();
+        $analysis->each->delete();
         EventLog::create(['type' => 'ready']);
         //получение новых записей
         $saved = Donors::all();
@@ -33,6 +37,8 @@ class SourceService
         $this->sync($items, Source::class);
         $items = OtvodAist::all();
         $this->sync($items, Otvod::class);
+        $items = AnalcliData::all();
+        $this->sync($items, Analysis::class);
         return [];
     }
 
@@ -41,18 +47,18 @@ class SourceService
         $all = [];
         $error = [];
         foreach ($items as $item) {
-            $data = $model::transform($this->service, $item);
             try {
-            $rule = $model::RULE;
-            $rule = array_merge($rule, $this->GetRuleDoc($data));
-            $validator = Validator::make($data, $rule);
-            $data['validated'] = !$validator->fails();
+                $data = $model::transform($this->service, $item);
+                $rule = $model::RULE;
+                $rule = array_merge($rule, $this->GetRuleDoc($data));
+                $validator = Validator::make($data, $rule);
+                $data['validated'] = !$validator->fails();
 //            if ($validator->fails()) {
 //                dump($data);
 //                dd($validator->failed());
 //            }
-            $model::create($data);
-            $all[] = $data;
+                $model::create($data);
+                $all[] = $data;
             } catch (\Exception $exception) {
                 $error[] = $data;
                 continue;

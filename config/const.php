@@ -28,7 +28,6 @@ return [
             'VNG' => intval(env('VNG', 7)),
             'INPassport' => intval(env('INPassport', 5)),
         ],
-
     'DonationType' =>
         [
             '001' => '001',
@@ -41,8 +40,49 @@ return [
             '130' => '130',
             '136' => '130',
             '137' => '130',
-            '230' => '',
-        ]
+            '230' => '130',
+        ],
+    'Examinations' =>
+        [
+            'OrgId' => intval(env('ExaminationsOrgId', 7701)),
+            'ExamType' => intval(env('ExaminationsExamType', 2)),
+            'HematologyResultType' => intval(env('ExaminationsHematologyResultType', 1)),
+            'UniqueIdMIN' => intval(env('ExaminationsUniqueIdMIN', 400000000)),
+        ],
+    'MedicalTestResults' =>
+        [
+            'types' => [
+                'hb',
+                'soe',
+                'belok',
+                'abo',
+                'trom',
+//                'num',
+//                'bel_fr',
+                'erit',
+                'cwet',
+                'leyk',
+                'palja',
+                'segja',
+                'eos',
+                'bas',
+                'lim',
+                'mon',
+                'plkl',
+                'miel',
+                'meta',
+                'svrn',
+                'krtok',
+                'gemat',
+                'mch',
+                'mchc',
+                'ret',
+                'mcv',
+                'svrk',
+            ],
+            'UniqueIdMIN' => intval(env('ExaminationsUniqueIdMIN', 400000000)),
+        ],
+
     //это для прода
 //    'DonationType' =>
 //        [

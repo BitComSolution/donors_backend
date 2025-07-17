@@ -3,10 +3,14 @@
 namespace App\Services;
 
 
+use App\Models\Analysis;
 use App\Models\Donors;
 use App\Models\MS\Donations;
 use App\Models\MS\DonationTypes;
+use App\Models\MS\Examinations;
 use App\Models\MS\IdentityDocs;
+use App\Models\MS\MedicalTestResults;
+use App\Models\MS\MedicalTypes;
 use App\Models\MS\Organizations;
 use App\Models\MS\PersonAddresses;
 use App\Models\MS\PersonCards;
@@ -19,7 +23,7 @@ class MSService
 {
     public function send()
     {
-        //перенос всех записей в мс
+//        //перенос всех записей в мс
         $source = Source::where("validated", true)->get();
         foreach ($source as $item) {
             try {
@@ -30,9 +34,9 @@ class MSService
 //                dump($exception->getMessage());
             }
         }
-        //перенос отводов
         $source = Source::all();
         $source->each->delete();
+//        //перенос отводов
         $otvod = Otvod::where("validated", true)->get();
         foreach ($otvod as $item) {
             try {
@@ -43,6 +47,19 @@ class MSService
             }
         }
         $source = Otvod::all();
+        $source->each->delete();
+        //перенос анализов
+        $analysis = Analysis::where("validated", true)->get();
+        $this->medicaltypes = MedicalTypes::all()->pluck('Id', 'Code');
+        foreach ($analysis as $item) {
+            try {
+                $this->createRecordAnalysis($item);
+            } catch (\Exception $exception) {
+                Log::channel('ms')->info('Error analysis' . '  ' . $exception->getMessage());
+//                dump($exception->getMessage());
+            }
+        }
+        $source = Analysis::all();
         $source->each->delete();
         return true;
 
@@ -68,6 +85,21 @@ class MSService
         //работа с донацией
         $item = $this->createDonation($item);
 
+        return $item;
+    }
+
+    private function createRecordAnalysis($item)
+    {
+        //работа с адресами
+        $item = $this->createAddress($item);
+        //работа с документами
+        $item = $this->createDocs($item);
+        //работа с персональной картой
+        $item = $this->createPersonCards($item);
+        //работа с экзаменами
+        $item = $this->createExaminations($item);
+        //работа с анализами
+        $item = $this->createMedicalTestResults($item);
         return $item;
     }
 
@@ -103,6 +135,24 @@ class MSService
             if (is_null($donation)) {
                 $item = $this->UniqueIdCreate(Donations::class, $item);
             }
+        }
+        return $item;
+    }
+
+    private function createExaminations($item)
+    {
+        $item = $this->UniqueIdCreate(Examinations::class, $item);
+        return $item;
+    }
+
+    private function createMedicalTestResults($item)
+    {
+        $types = config('const.MedicalTestResults.types');
+        foreach ($types as $type) {
+//            $item['test_valid'] = true;//написать проверку что значение подходит
+            $item['test_value'] = $item[$type];
+            $item['test_type_id'] = $this->medicaltypes[strtoupper($type)];
+            $item = $this->UniqueIdCreate(MedicalTestResults::class, $item);
         }
         return $item;
     }
