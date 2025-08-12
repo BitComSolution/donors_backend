@@ -6,6 +6,7 @@ use App\Models\Analysis;
 use App\Models\Donors;
 use App\Models\EventLog;
 use App\Models\Logs;
+use App\Models\Scheduled;
 use App\Models\Source;
 use App\Models\TWO\AnalcliData;
 use App\Models\TWO\BloodData;
@@ -22,6 +23,14 @@ class SourceService
 
     public function dbSynchronize()
     {
+        $status=Scheduled::where('run',true)->first();
+        if(!is_null($status))
+        {
+            return false;
+        }
+        $command=Scheduled::where('title','aist')->first();
+        $command['run']=true;
+        $command->save();
         $this->service = new DataService;
         //очиска бд
         $source = Source::all();
@@ -39,6 +48,8 @@ class SourceService
         $this->sync($items, Otvod::class);
         $items = AnalcliData::all();
         $this->sync($items, Analysis::class);
+        $command['run']=false;
+        $command->save();
         return [];
     }
 

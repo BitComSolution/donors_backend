@@ -11,5 +11,5 @@ class Scheduled extends Model
 
     protected $connection = 'pgsql';
 
-    protected $fillable = ['title','last_start','period_hours'];
+    protected $fillable = ['title','last_start','period_hours','run'];
 }

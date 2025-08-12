@@ -5,6 +5,8 @@ namespace App\Services;
 
 use App\Models\Analysis;
 use App\Models\Donors;
+use App\Models\MS\Deferrals;
+use App\Models\MS\DeferralTypes;
 use App\Models\MS\Donations;
 use App\Models\MS\DonationTypes;
 use App\Models\MS\Examinations;
@@ -15,6 +17,7 @@ use App\Models\MS\Organizations;
 use App\Models\MS\PersonAddresses;
 use App\Models\MS\PersonCards;
 use App\Models\Otvod;
+use App\Models\Scheduled;
 use App\Models\Source;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +26,14 @@ class MSService
 {
     public function send()
     {
-//        //перенос всех записей в мс
+        $status = Scheduled::where('run', true)->first();
+        if (!is_null($status)) {
+            return false;
+        }
+        $command = Scheduled::where('title', 'ms')->first();
+        $command['run'] = true;
+        $command->save();
+        //перенос всех записей в мс
         $source = Source::where("validated", true)->get();
         foreach ($source as $item) {
             try {
@@ -38,9 +48,10 @@ class MSService
         $source->each->delete();
 //        //перенос отводов
         $otvod = Otvod::where("validated", true)->get();
+        $this->deferraltypes = DeferralTypes::all()->pluck('UniqueId', 'Code');
         foreach ($otvod as $item) {
             try {
-                $this->createRecord($item);
+            $this->createRecordOtvod($item);
             } catch (\Exception $exception) {
                 Log::channel('ms')->info('Error otvod' . $item['card_id'] . '  ' . $exception->getMessage());
 //                dump($exception->getMessage());
@@ -61,6 +72,8 @@ class MSService
         }
         $source = Analysis::all();
         $source->each->delete();
+        $command['run'] = false;
+        $command->save();
         return true;
 
     }
@@ -84,6 +97,20 @@ class MSService
         $item = $this->createPersonCards($item);
         //работа с донацией
         $item = $this->createDonation($item);
+
+        return $item;
+    }
+
+    private function createRecordOtvod($item)
+    {
+        //работа с адресами
+        $item = $this->createAddress($item);
+        //работа с документами
+        $item = $this->createDocs($item);
+        //работа с персональной картой
+        $item = $this->createPersonCards($item);
+        //работа с отводом
+        $item = $this->createDeferrals($item);
 
         return $item;
     }
@@ -154,6 +181,14 @@ class MSService
             $item['test_type_id'] = $this->medicaltypes[strtoupper($type)];
             $item = $this->UniqueIdCreate(MedicalTestResults::class, $item);
         }
+        return $item;
+    }
+
+    private function createDeferrals($item)
+    {
+        $item['created_date'] =  date('Y-m-d', strtotime( $item['created']));;
+        $item['DeferralTypeId'] = $this->deferraltypes["30"];//вместо 30 подставить реальное поле
+        $item = $this->UniqueIdCreate(Deferrals::class, $item);
         return $item;
     }
 

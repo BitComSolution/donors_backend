@@ -82,7 +82,13 @@ return [
             ],
             'UniqueIdMIN' => intval(env('ExaminationsUniqueIdMIN', 400000000)),
         ],
-
+    'Deferrals' =>
+        [
+            'CreateUserId' => intval(env('DeferralsCreateUserId', -20)),
+            'EpidControlInactive' => boolval(env('DeferralsEpidControlInactive', false)),
+            'DeferralTypeId' => intval(env('DeferralsDeferralTypeId', 30)),
+            'UniqueIdMIN' => intval(env('ExaminationsUniqueIdMIN', 400000000)),
+        ],
     //это для прода
 //    'DonationType' =>
 //        [
