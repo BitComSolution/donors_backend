@@ -36,6 +36,7 @@ return new class extends Migration {
             $table->date('created')->nullable();//created
             $table->integer('kod_128')->nullable();
             $table->boolean('validated')->default(true);
+            $table->json('error')->nullable();
             $table->timestamps();
 
         });

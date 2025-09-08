@@ -47,6 +47,10 @@ class Source extends Model
     const SYMBOLS =
         [' ', '-', '.', '_'];
 
+    protected $casts = [
+        'error' => 'array',
+    ];
+
     const LOG_NAME = 'main';
 
     const LOG_FIELD = [
@@ -72,4 +76,31 @@ class Source extends Model
     {
         return $service->SourceConvert($item->getOriginal());
     }
+
+    const TYPES =
+        [
+            'vich',
+            'hbs',
+            'sif',
+            'hcv',
+            'pcr',
+            'anti_a',
+            'anti_b',
+            'hla',
+            'gra',
+            'grb',
+            'mn',
+            'ss',
+            'fy',
+            'lu',
+            'le',
+            'jk',
+            'kp',
+            'pi',
+            'pcrraw',
+            'vichraw',
+            'hbsraw',
+            'sifraw',
+            'hcvraw',
+        ];
 }

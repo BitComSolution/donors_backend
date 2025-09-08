@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use App\Models\Analysis;
-use App\Models\Donors;
 use App\Models\EventLog;
 use App\Models\Logs;
+use App\Models\Osmotr;
+use App\Models\Personas;
 use App\Models\Scheduled;
 use App\Models\Source;
 use App\Models\TWO\AnalcliData;
 use App\Models\TWO\BloodData;
+use App\Models\TWO\OsmotrData;
 use App\Models\TWO\Otvod as OtvodAist;
 use App\Models\Otvod;
 use Carbon\Carbon;
@@ -23,13 +25,12 @@ class SourceService
 
     public function dbSynchronize()
     {
-        $status=Scheduled::where('run',true)->first();
-        if(!is_null($status))
-        {
+        $status = Scheduled::where('run', true)->first();
+        if (!is_null($status)) {
             return false;
         }
-        $command=Scheduled::where('title','aist')->first();
-        $command['run']=true;
+        $command = Scheduled::where('title', 'aist')->first();
+        $command['run'] = true;
         $command->save();
         $this->service = new DataService;
         //очиска бд
@@ -39,16 +40,21 @@ class SourceService
         $otvod->each->delete();
         $analysis = Analysis::all();
         $analysis->each->delete();
+        $osmotr = Osmotr::all();
+        $osmotr->each->delete();
+        $personas = Personas::all();
+        $personas->each->delete();
         EventLog::create(['type' => 'ready']);
-        //получение новых записей
-        $saved = Donors::all();
-        $items = BloodData::whereNotIn('card_id', $saved->pluck('id_mysql'))->get()->values();
+//        получение новых записей
+        $items = BloodData::all();
         $this->sync($items, Source::class);
         $items = OtvodAist::all();
         $this->sync($items, Otvod::class);
         $items = AnalcliData::all();
         $this->sync($items, Analysis::class);
-        $command['run']=false;
+        $items = OsmotrData::all();
+        $this->sync($items, Osmotr::class);
+        $command['run'] = false;
         $command->save();
         return [];
     }
@@ -64,11 +70,17 @@ class SourceService
                 $rule = array_merge($rule, $this->GetRuleDoc($data));
                 $validator = Validator::make($data, $rule);
                 $data['validated'] = !$validator->fails();
-//            if ($validator->fails()) {
-//                dump($data);
-//                dd($validator->failed());
-//            }
+                if ($validator->fails()) {
+                    $data['error'] = $validator->failed();
+                }
                 $model::create($data);
+                $pers = Personas::where('card_id', $data['card_id'])->first();
+                if (is_null($pers))
+                    Personas::create($data);
+                else {
+                    $data['validated'] = $data['validated'] && $pers['validated'];
+                    $pers->update($data);
+                }
                 $all[] = $data;
             } catch (\Exception $exception) {
                 $error[] = $data;

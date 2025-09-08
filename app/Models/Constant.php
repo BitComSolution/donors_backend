@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Donors extends Model
+class Constant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_mysql'];
+    protected $fillable = [
+        'name',
+        'value'
+    ];
 }

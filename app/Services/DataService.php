@@ -4,11 +4,16 @@ namespace App\Services;
 
 
 use App\Models\Analysis;
+use App\Models\DB;
+use App\Models\DefTypes;
+use App\Models\MS\DeferralTypes;
 use App\Models\MS\DonationTypes;
 use App\Models\MS\Organizations;
+use App\Models\Osmotr;
 use App\Models\Otvod;
 use App\Models\Source;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
 
 class DataService
 {
@@ -19,11 +24,29 @@ class DataService
     protected $donation_types;//список донаций
     protected $donation_types_const;//список донаций константы
     protected $vng;//вид на жительство
+    protected $deferral_types;//список типов отводов из МС
+    protected $def_types_const;//список типов отводов из файла
 
     public function __construct()
     {
+        $db = DB::where('active', true)->first();
+        Config::set("database.connections.sqlsrv", [
+            'driver' => 'sqlsrv',
+            'host' => $db->host,
+            'port' => $db->port,
+            'database' => $db->database,
+            'username' => $db->username,
+            'password' => $db->password,
+            'charset' => env('DB_CHARSET_MS', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            // 'encrypt' => env('DB_ENCRYPT_MS', 'yes'),
+            'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE_MS', 'true'),
+        ]);
         $this->donation_types = DonationTypes::all()->pluck('UniqueId', 'Code');
         $this->organizations = Organizations::all()->pluck('UniqueId', 'OrgCode');
+        $this->deferral_types = DeferralTypes::all()->pluck('UniqueId', 'Code');
+        $this->def_types_const = DefTypes::all()->pluck('eidbCode', 'aistCode');
         $this->donation_types_const = config('const.DonationType');
         $this->vng = config('const.DocType.VNG');
     }
@@ -69,6 +92,7 @@ class DataService
         $this->donation_org_128();
         $this->document_type();
         $this->phenotype();
+        $this->typeDefferals();
 //        dump($item);
 //        dd($this->convert_item);
         return $this->convert_item;
@@ -77,9 +101,31 @@ class DataService
     public function AnalysisConvert($item)
     {
         $model = Analysis::class;
+        $item['card_id'] = $item['num'];
         $item['rh_factor'] = $item['rh'];
         $item['created'] = Carbon::now()->addHours(3)->format('Y-d-m H:i:s');
         unset($item['rh']);
+        $this->convert_item = $item;
+        $this->date_fields = $model::DATE_FIELDS;
+        $this->OrgId();
+        $this->transformData($model);
+        $this->gender();
+        $this->address();
+        $this->dates();
+        $this->LastModifiedDate();
+        $this->rh_factor();
+        $this->kell();
+        $this->phenotype();
+//       dd( array_diff($item, $this->convert_item));//показывает какие строчки поменялись
+//        dump($item);//исходный
+//        dd($this->convert_item);//готовый
+        return $this->convert_item;
+    }
+
+    public function OsmotrConvert($item)
+    {
+        $model = Osmotr::class;
+        $item['created'] = Carbon::now()->addHours(3)->format('Y-d-m H:i:s');
         $this->convert_item = $item;
         $this->date_fields = $model::DATE_FIELDS;
         $this->OrgId();
@@ -187,32 +233,44 @@ class DataService
 
     private function OrgId()
     {
-        if ($this->convert_item['kod_128'] != 0) {
-            if (isset($this->organizations[$this->convert_item['kod_128']]))
-                $this->convert_item['OrgId'] = $this->organizations[$this->convert_item['kod_128']];
+        try {
+            if ($this->convert_item['kod_128'] != 0) {
+                if (isset($this->organizations[$this->convert_item['kod_128']]))
+                    $this->convert_item['OrgId'] = $this->organizations[$this->convert_item['kod_128']];
+            }
+        } catch (\Exception $exception) {
+            $this->convert_item['OrgId'] = 'error';
         }
-
     }
 
     private function donation_org_128()
     {
-        if (isset($this->convert_item['donation_org_128']))
-            $this->convert_item['donation_org_128'] = $this->organizations[$this->convert_item['donation_org_128']];
+        try {
+            if (isset($this->convert_item['donation_org_128']))
+                $this->convert_item['donation_org_128'] = $this->organizations[$this->convert_item['donation_org_128']];
+        } catch (\Exception $exception) {
+            $this->convert_item['donation_org_128'] = 'error';
+        }
     }
 
     private function document_type()
     {
-        $this->convert_item['document_number'] = $this->addZero($this->convert_item['document_number']);
-        if (isset($this->convert_item['document_type']) && $this->convert_item['document_type'] == $this->vng) {
-            $document = $this->convert_item['document_serial'] . $this->convert_item['document_number'];
-            $this->convert_item['document_serial'] = mb_substr($document, 0, 2);
-            $this->convert_item['document_number'] = mb_substr($document, 2, 100);
+        try {
+            $this->convert_item['document_number'] = $this->addZero($this->convert_item['document_number']);
+            if (isset($this->convert_item['document_type']) && $this->convert_item['document_type'] == $this->vng) {
+                $document = $this->convert_item['document_serial'] . $this->convert_item['document_number'];
+                $this->convert_item['document_serial'] = mb_substr($document, 0, 2);
+                $this->convert_item['document_number'] = mb_substr($document, 2, 100);
+            }
+        } catch (\Exception $exception) {
+            $this->convert_item['document_serial'] = 'error';
+            $this->convert_item['document_number'] = 'error';
+            $this->convert_item['document_type'] = 'error';
         }
     }
 
     private function phenotype()
     {
-
         try {
             $phenotype = '';
             if (preg_match('/[A-Za-z]/', $this->convert_item['phenotype'])) {
@@ -262,10 +320,14 @@ class DataService
 
     private function donation_type_id()
     {
-        if (isset($this->donation_types_const[$this->convert_item['donation_type_id']])) {
-            $this->convert_item['donation_type_id'] = $this->donation_types_const[$this->convert_item['donation_type_id']];
+        try {
+            if (isset($this->donation_types_const[$this->convert_item['donation_type_id']])) {
+                $this->convert_item['donation_type_id'] = $this->donation_types_const[$this->convert_item['donation_type_id']];
+            }
+            $this->convert_item['donation_type_id'] = $this->donation_types[$this->convert_item['donation_type_id']];
+        } catch (\Exception $exception) {
+            $this->convert_item['donation_type_id'] = 'error';
         }
-        $this->convert_item['donation_type_id'] = $this->donation_types[$this->convert_item['donation_type_id']];
     }
 
     private function addZero($string)
@@ -274,5 +336,20 @@ class DataService
             $string = '0' . $string;
         }
         return $string;
+    }
+
+    private function typeDefferals()
+    {
+        try {
+            if (isset($this->deferral_types[$this->convert_item['ex_type']])) {
+                $this->convert_item['ex_type'] = $this->deferral_types[$this->convert_item['ex_type']];
+            } else {
+                $name = $this->def_types_const[$this->convert_item['ex_type']];
+                $this->convert_item['ex_type'] = $this->deferral_types[$name];
+            }
+        } catch (\Exception $exception) {
+            $this->convert_item['ex_type'] = 'not_found';
+        }
+
     }
 }

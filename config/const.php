@@ -3,12 +3,10 @@
 return [
     'PersonCards' =>
         [
-            'CreateUserId' => intval(env('PersonCardsCreateUserId', -20)),
             'BirthDateIsUndefined' => env('PersonCardsBirthDateIsUndefined', false),
             'IsAgree' => env('PersonCardsIsAgree', true),
             'IsDeleted' => env('PersonCardsIsDeleted', false),
             'IsMessageAgree' => env('PersonCardsIsMessageAgree', true),
-            'UniqueIdMIN' => intval(env('PersonCardsUniqueIdMIN', 400000000)),
         ],
     'IdentityDocs' =>
         [
@@ -16,11 +14,8 @@ return [
         ],
     'Donations' =>
         [
-            'DepartmentId' => intval(env('DonationsDepartmentId', 0)),
             'IsDeleted' => env('DonationsIsDeleted', false),
-            'CreateUserId' => intval(env('DonationsCreateUserId', -20)),
             'ResultStatus' => intval(env('DonationsResultStatus', 0)),
-            'UniqueIdMIN' => intval(env('DonationsUniqueIdMIN', 400000000)),
         ],
     'DocType' =>
         [
@@ -44,50 +39,11 @@ return [
         ],
     'Examinations' =>
         [
-            'OrgId' => intval(env('ExaminationsOrgId', 7701)),
-            'ExamType' => intval(env('ExaminationsExamType', 2)),
             'HematologyResultType' => intval(env('ExaminationsHematologyResultType', 1)),
-            'UniqueIdMIN' => intval(env('ExaminationsUniqueIdMIN', 400000000)),
-        ],
-    'MedicalTestResults' =>
-        [
-            'types' => [
-                'hb',
-                'soe',
-                'belok',
-                'abo',
-                'trom',
-//                'num',
-//                'bel_fr',
-                'erit',
-                'cwet',
-                'leyk',
-                'palja',
-                'segja',
-                'eos',
-                'bas',
-                'lim',
-                'mon',
-                'plkl',
-                'miel',
-                'meta',
-                'svrn',
-                'krtok',
-                'gemat',
-                'mch',
-                'mchc',
-                'ret',
-                'mcv',
-                'svrk',
-            ],
-            'UniqueIdMIN' => intval(env('ExaminationsUniqueIdMIN', 400000000)),
         ],
     'Deferrals' =>
         [
-            'CreateUserId' => intval(env('DeferralsCreateUserId', -20)),
             'EpidControlInactive' => boolval(env('DeferralsEpidControlInactive', false)),
-            'DeferralTypeId' => intval(env('DeferralsDeferralTypeId', 30)),
-            'UniqueIdMIN' => intval(env('ExaminationsUniqueIdMIN', 400000000)),
         ],
     //это для прода
 //    'DonationType' =>

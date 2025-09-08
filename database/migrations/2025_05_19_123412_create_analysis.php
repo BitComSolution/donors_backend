@@ -63,6 +63,8 @@ return new class extends Migration {
             $table->string('LastModifiedDate')->nullable();
             $table->integer('kod_128')->nullable();
             $table->integer('OrgId')->nullable();
+            $table->integer('card_id');
+            $table->json('error')->nullable();
             $table->timestamps();
 
         });

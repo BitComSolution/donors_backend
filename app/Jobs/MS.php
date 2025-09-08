@@ -10,12 +10,14 @@ class MS implements ShouldQueue
 {
     use Queueable;
 
+    public $ids;
+
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct($ids)
     {
-        //
+        $this->ids = $ids;
     }
 
     /**
@@ -24,6 +26,6 @@ class MS implements ShouldQueue
     public function handle(): void
     {
         $MSService = new MSService;
-        $MSService->send();
+        $MSService->send($this->ids);
     }
 }

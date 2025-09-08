@@ -119,21 +119,6 @@ return [
                 ]) : [],
             ],
 
-        'sqlsrv' => [
-            'driver' => 'sqlsrv',
-            'url' => env('DB_URL_MS'),
-            'host' => env('DB_HOST_MS', 'localhost'),
-            'port' => env('DB_PORT_MS', '1433'),
-            'database' => env('DB_DATABASE_MS', 'laravel'),
-            'username' => env('DB_USERNAME_MS', 'root'),
-            'password' => env('DB_PASSWORD_MS', ''),
-            'charset' => env('DB_CHARSET_MS', 'utf8'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            // 'encrypt' => env('DB_ENCRYPT_MS', 'yes'),
-             'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE_MS', 'true'),
-        ],
-
     ],
 
     /*

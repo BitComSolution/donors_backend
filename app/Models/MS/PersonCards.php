@@ -94,7 +94,7 @@ class PersonCards extends Model
 //        ['ms' => 'RbcAntibody', 'aist' => 'anti_erythrocyte_antibodies'],
 //        ['ms' => 'DeathDate', 'aist' => ''],
         ['ms' => 'CreateDate', 'aist' => 'created'],
-        ['ms' => 'CreateUserId', 'aist' => 'author_id', 'default' => 'const.PersonCards.CreateUserId'],//test data
+        ['ms' => 'CreateUserId', 'aist' => 'author_id', 'db_const' => 'CreateUserId'],//test data
         ['ms' => 'LastModifiedDate', 'aist' => 'LastModifiedDate'],
 //        ['ms' => 'LastModifiedUserId', 'aist' => ''],
 //        ['ms' => 'DonorBarcode', 'aist' => 'donation_barcode'],

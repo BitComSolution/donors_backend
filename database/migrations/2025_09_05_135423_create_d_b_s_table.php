@@ -4,16 +4,20 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('donors', function (Blueprint $table) {
+        Schema::create('d_b_s', function (Blueprint $table) {
             $table->id();
-            $table->string('id_mysql');
+            $table->string('host');
+            $table->string('port');
+            $table->string('database');
+            $table->string('username');
+            $table->string('password');
+            $table->boolean('active')->default(False);
             $table->timestamps();
         });
     }
@@ -23,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('donors');
+        Schema::dropIfExists('d_b_s');
     }
 };

@@ -7,6 +7,8 @@ use  App\Http\Controllers\Api\v1\UserController;
 use  App\Http\Controllers\Api\v1\ScheduledController;
 use  App\Http\Controllers\Api\v1\LogsController;
 use  App\Http\Controllers\Api\v1\SourceController;
+use  App\Http\Controllers\Api\v1\ConstController;
+use  App\Http\Controllers\Api\v1\DBController;
 
 Route::post('login', [AuthController::class, 'login']);
 
@@ -16,6 +18,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('list', [UserController::class, 'getList']);
         Route::put('edit/{user}', [UserController::class, 'edit']);
         Route::post('delete', [UserController::class, 'delete']);
+    });
+    Route::prefix('сonst')->group(function () {
+        Route::get('get', [ConstController::class, 'get']);
+        Route::put('edit/{const}', [ConstController::class, 'edit']);
+    });
+    Route::prefix('db')->group(function () {
+        Route::get('get', [DBController::class, 'get']);
+        Route::put('edit/{db}', [DBController::class, 'edit']);
+        Route::post('create', [DBController::class, 'create']);
+        Route::delete('delete/{db}', [DBController::class, 'delete']);
     });
     Route::prefix('command')->group(function () {
         Route::get('get', [ScheduledController::class, 'get']);
@@ -31,11 +43,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('aist', [SourceController::class, 'aist']);
         Route::post('request', [SourceController::class, 'sendRequest']);
         Route::get('list', [SourceController::class, 'getListDonors']);
-        Route::get('{source}', [SourceController::class, 'getItem']);
+        Route::get('{id}', [SourceController::class, 'getItem']);
     });
 });
 Route::prefix('webhook')->group(function () {
     Route::post('ready', [SourceController::class, 'ready']);
     Route::post('fail', [SourceController::class, 'fail']);
-
+    Route::get('status', [SourceController::class, 'fail']);
 });

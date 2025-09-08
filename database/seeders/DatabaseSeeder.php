@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder
         User::create($data);
         $this->call([
             CommandSeeder::class,
+            DefTypesSeeder::class,
+            OrgsSeeder::class,
+            DBSeeder::class,
+            ConstSeeder::class
         ]);
 //        $donors = [
 //            [

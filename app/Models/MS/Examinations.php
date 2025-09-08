@@ -33,12 +33,12 @@ class Examinations extends Model
         ['ms' => 'UniqueId', 'aist' => 'examination_id'],//какой тут id число
         ['ms' => 'OrgId', 'aist' => 'OrgId'],
         ['ms' => 'DonorId', 'aist' => 'card_id'],
-        ['ms' => 'ExamType', 'aist' => 'donation_org_id', 'default' => 'const.Examinations.ExamType'],
+        ['ms' => 'ExamType', 'aist' => 'ExamType'],
         ['ms' => 'ExamDate', 'aist' => 'analysis_date'],
 //        ['ms' => 'ExamEndTime', 'aist' => 'donation_org_id'],
 //        ['ms' => 'DeferralId', 'aist' => 'donation_org_id'],
         ['ms' => 'CreateDate', 'aist' => 'LastModifiedDate'],
-        ['ms' => 'UserId', 'aist' => 'donation_org_id', 'default' => 'const.PersonCards.CreateUserId'],
+        ['ms' => 'UserId', 'aist' => 'donation_org_id', 'db_const' => 'CreateUserId'],
         ['ms' => 'HematologyResultType', 'aist' => 'donation_org_id', 'default' => 'const.Examinations.HematologyResultType'],
 //        ['ms' => 'xUniqueId', 'aist' => 'research_id'], //нету
 //        ['ms' => 'DoctorId', 'aist' => 'donation_org_id'],

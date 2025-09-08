@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\TWO\AnalcliData;
 use App\Services\DataService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -43,10 +44,44 @@ class Analysis extends Model
         'birth_date', 'analysis_date',
 
     ];
+    protected $casts = [
+        'error' => 'array',
+    ];
 
     public static function transform($service, $item)
     {
         return $service->AnalysisConvert($item->getOriginal());
     }
+
+    const TYPES =
+        [
+            'hb' => 'hb',
+            'soe' => 'soe',
+            'belok' => 'belok',
+            'abo' => 'abo',
+            'trom' => 'trom',
+            'erit' => 'erit',
+            'cwet' => 'cwet',
+            'leyk' => 'leyk',
+            'palja' => 'palja',
+            'segja' => 'segja',
+            'eos' => 'eos',
+            'bas' => 'bas',
+            'lim' => 'lim',
+            'mon' => 'mon',
+            'plkl' => 'plkl',
+            'miel' => 'miel',
+            'meta' => 'meta',
+            'svrn' => 'svrn',
+            'krtok' => 'krtok',
+            'gemat' => 'gemat',
+            'mch' => 'mch',
+            'mchc' => 'mchc',
+            'ret' => 'ret',
+            'mcv' => 'mcv',
+            'svrk' => 'svrk',
+            //                'num',
+            'BELK_FR' => 'bel_fr',
+        ];
 }
 

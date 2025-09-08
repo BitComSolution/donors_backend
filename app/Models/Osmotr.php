@@ -3,11 +3,10 @@
 namespace App\Models;
 
 use App\Models\TWO\AnalcliData;
-use App\Models\TWO\Otvod as OtvodAist;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Otvod extends Model
+class Osmotr extends Model
 {
     use HasFactory;
 
@@ -24,7 +23,6 @@ class Otvod extends Model
 //        'birth_date' => ['required', 'date_format:dd.mm.yyyy'],//как в тз
 //        'birth_date' => ['required', 'date_format:Y-m-d'],//как в бд
         'snils' => ['required', 'regex:/^(\d{11})$/u'],
-        'ex_type' => ['required', 'integer'],
 ////в исходной базе лежат не правильные данные /^\d{3}.\d{3}.\d{3}.\d{2}/u'
 //        'blood_group' => ['integer', 'between:1,4'],
 //        'rh_factor' => ['regex:/^[+-]{1}/u'],
@@ -54,7 +52,7 @@ class Otvod extends Model
     const SYMBOLS =
         [' ', '-', '.', '_'];
 
-    const LOG_NAME = 'otvod';
+    const LOG_NAME = 'osmotr';
 
     const LOG_FIELD = [
         'card_id',
@@ -68,10 +66,21 @@ class Otvod extends Model
         'error' => 'array',
     ];
 
-    const DATE_FIELDS = ['birth_date', 'created', 'donation_date', 'research_date'];
+    const DATE_FIELDS = ['birth_date', 'date'];
 
     public static function transform($service, $item)
     {
-        return $service->OtvodConvert($item->getOriginal());
+        return $service->OsmotrConvert($item->getOriginal());
     }
+
+    const TYPES =
+        [
+            'AD1' => 'ad_sis',
+            'AD2' => 'ad_dias',
+            'puls' => 'puls',
+            'T' => 'temp',
+            'VLM' => 'doza',
+            'ves' => 'ves',
+            'rost' => 'rost',
+        ];
 }
