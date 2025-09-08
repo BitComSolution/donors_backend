@@ -20,6 +20,7 @@ use App\Models\MS\PersonCards;
 use App\Models\Org;
 use App\Models\Osmotr;
 use App\Models\Otvod;
+use App\Models\Personas;
 use App\Models\Scheduled;
 use App\Models\Source;
 use Carbon\Carbon;
@@ -130,6 +131,8 @@ class MSService
         $osmotr = Osmotr::all();
         $osmotr->each->delete();
 
+        $personas = Personas::all();
+        $personas->each->delete();
         //освобождение очереди
         $command['run'] = false;
         $command->save();
