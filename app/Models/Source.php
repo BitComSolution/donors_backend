@@ -63,7 +63,8 @@ class Source extends Model
         'donation_id',
         'donation_org_id',
         'donation_date',
-        'validated'
+        'validated',
+        'message'
     ];
 
     const DATE_FIELDS = [
@@ -79,28 +80,28 @@ class Source extends Model
 
     const TYPES =
         [
-            'vich',
-            'hbs',
-            'sif',
-            'hcv',
-            'pcr',
-            'anti_a',
-            'anti_b',
-            'hla',
-            'gra',
-            'grb',
-            'mn',
-            'ss',
-            'fy',
-            'lu',
-            'le',
-            'jk',
-            'kp',
-            'pi',
-            'pcrraw',
-            'vichraw',
-            'hbsraw',
-            'sifraw',
-            'hcvraw',
+            'vich' => 'vich',
+            'hbs' => 'hbs',
+            'sif' => 'sif',
+            'hcv' => 'hcv',
+//            'pcr'      => 'pcr',
+//            'anti_a'   => 'anti_a',
+//            'anti_b'   => 'anti_b',
+//            'hla'      => 'hla',
+//            'gra'      => 'gra',
+//            'grb'      => 'grb',
+//            'mn'       => 'mn',
+//            'ss'       => 'ss',
+//            'fy'       => 'fy',
+//            'lu'       => 'lu',
+//            'le'       => 'le',
+//            'jk'       => 'jk',
+//            'kp'       => 'kp',
+//            'pi'       => 'pi',
+//            'pcrraw'   => 'pcrraw',
+//            'vichraw'  => 'vichraw',
+//            'hbsraw'   => 'hbsraw',
+//            'sifraw'   => 'sifraw',
+//            'hcvraw'   => 'hcvraw',
         ];
 }

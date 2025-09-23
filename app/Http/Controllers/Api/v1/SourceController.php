@@ -47,6 +47,18 @@ class SourceController extends Controller
         $data['otvod'] = Otvod::where('card_id', $id)->get();
         $data['analysis'] = Analysis::where('num', $id)->get();
         $data['osmotr'] = Osmotr::where('card_id', $id)->get();
+        $errors = [];
+        foreach ([$data['source'], $data['otvod'], $data['analysis'], $data['osmotr']] as $collection) {
+            foreach ($collection as $item) {
+                if (!empty($item->error)) {
+                    $decoded = is_string($item->error) ? json_decode($item->error, true) : $item->error;
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $errors = array_merge_recursive($errors, $decoded);
+                    }
+                }
+            }
+        }
+        $data['error'] = $errors;
         return response()->json($data);
     }
 

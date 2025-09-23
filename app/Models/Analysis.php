@@ -37,7 +37,8 @@ class Analysis extends Model
     const LOG_NAME = 'analysis';
 
     const LOG_FIELD = [
-        'name', 'middlename', 'lastname', 'snils'
+        'name', 'middlename', 'lastname', 'snils',
+        'message'
     ];
 
     const DATE_FIELDS = [

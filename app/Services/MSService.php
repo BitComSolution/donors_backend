@@ -9,6 +9,7 @@ use App\Models\DB;
 use App\Models\MS\Deferrals;
 use App\Models\MS\DeferralTypes;
 use App\Models\MS\Donations;
+use App\Models\MS\DonationTestResults;
 use App\Models\MS\DonationTypes;
 use App\Models\MS\Examinations;
 use App\Models\MS\IdentityDocs;
@@ -144,8 +145,12 @@ class MSService
     {
         $body = [];
         foreach ($fields as $field) {
-            $body[$field['ms']] = (!isset($field['default'])) ? $item[$field['aist']] : config($field['default']);
-            $body[$field['ms']] = (!isset($field['db_const'])) ? $item[$field['aist']] : Constant::where('name', $field['db_const'])->first()->name;
+            if (isset($field['default']))
+                $body[$field['ms']] = config($field['default']);
+            if (isset($field['db_const']))
+                $body[$field['ms']] = Constant::where('name', $field['db_const'])->first()->value;
+            if (!isset($field['default']) && !isset($field['db_const']))
+                $body[$field['ms']] = $item[$field['aist']];
         }
         return $body;
     }
@@ -160,12 +165,8 @@ class MSService
         $item = $this->createPersonCards($item);
         //работа с донацией
         $item = $this->createDonation($item);
-//        //работа с экзаменами
-//        $item['ExamType'] = 1;
-//        $item['analysis_date'] = $item['research_date'];
-//        $item = $this->createExaminations($item);
 //        //работа с анализами
-//        $item = $this->createMedicalTestResults($item, Source::TYPES);
+        $item = $this->createDonationTestResults($item, Source::TYPES);
         return $item;
     }
 
@@ -244,7 +245,27 @@ class MSService
             $donation = Donations::where('Barcode', $item['donation_barcode'])->first();
             if (is_null($donation)) {
                 $item = $this->UniqueIdCreate(Donations::class, $item);
+            } else {
+                $item[Donations::ID] = $donation['UniqueId'];
+                $donation->update($this->createBody($item, Donations::Fields));
             }
+        }
+        return $item;
+    }
+
+    private function createDonationTestResults($item)
+    {
+        $types = Source::TYPES;
+        foreach ($types as $ms => $mysql) {
+            $item['test_value'] = $item[$mysql];
+            $item['test_type_id'] = $this->medicaltypes[strtoupper($ms)];
+            DonationTestResults::updateOrCreate(
+                [
+                    'DonationId' => $item['donation_id'],
+                    'TestTypeId' => $item['test_type_id'],
+                ],
+                $this->createBody($item, DonationTestResults::Fields)
+            );
         }
         return $item;
     }
@@ -256,7 +277,7 @@ class MSService
 //    если есть и дата создания отвода (analysis_date) равна дате StartDate
 //    мы обновляем запись
 //    а если не сходится создаю новую
-        $examination = Examinations::where('DonorId', $item['card_id'])->where('ExamDate', $item['analysis_date'])
+        $examination = Examinations::where('ExamType', $item['ExamType'])->where('DonorId', $item['card_id'])->where('ExamDate', $item['analysis_date'])
             ->first();
 
         if (is_null($examination)) {
@@ -280,19 +301,15 @@ class MSService
                 $item['test_value'] = $item[$mysql];
                 $item['test_type_id'] = $this->medicaltypes[strtoupper($ms)];
                 if ($item['analize_update']) {
-                    // обновляем если тест уже есть
-                    $analize = MedicalTestResults::where('ExaminationId', $item['examination_id'])
-                        ->where('TestTypeId', $item['test_type_id'])
-                        ->first();
-
-                    if ($analize) {
-                        $analize->update($this->createBody($item, MedicalTestResults::Fields));
-                    } else {
-                        $item = $this->UniqueIdCreate(MedicalTestResults::class, $item);
-                    }
+                    MedicalTestResults::updateOrCreate(
+                        [
+                            'ExaminationId' => $item['examination_id'],
+                            'TestTypeId' => $item['test_type_id'],
+                        ],
+                        $this->createBody($item, MedicalTestResults::Fields));
                 } else {
                     // создаем всегда новые тесты
-                    $item = $this->UniqueIdCreate(MedicalTestResults::class, $item);
+                    MedicalTestResults::firstOrCreate($this->createBody($item, MedicalTestResults::Fields));
                 }
             }
         }

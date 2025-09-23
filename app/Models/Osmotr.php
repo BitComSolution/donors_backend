@@ -60,7 +60,8 @@ class Osmotr extends Model
         'middlename',
         'gender',
         'birth_date',
-        'validated'
+        'validated',
+        'message'
     ];
     protected $casts = [
         'error' => 'array',

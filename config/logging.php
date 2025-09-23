@@ -127,11 +127,10 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
         'ms' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/laravel-ms.log'),
+            'driver' => 'single',
+            'path' => storage_path('logs/ms.log'),
             'level' => 'debug',
-            'permission' => octdec('777'),
-            'days' => 14,
+            'permission' => 0644,
         ],
     ],
 

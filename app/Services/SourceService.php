@@ -81,8 +81,10 @@ class SourceService
                     $data['validated'] = $data['validated'] && $pers['validated'];
                     $pers->update($data);
                 }
+                $data['message'] = 'Без ошибок';
                 $all[] = $data;
             } catch (\Exception $exception) {
+                $data['message'] = $exception->getMessage();
                 $error[] = $data;
                 continue;
             }
@@ -101,6 +103,18 @@ class SourceService
             "endDate" => $end
         ]);
         return [];
+    }
+
+    public static function getStatus()
+    {
+        try {
+            $response = Http::timeout(5)->get(config('aist.url') . '/status');
+
+            return (int)($response->successful()
+                && strcasecmp(trim($response->body()), 'Finished') === 0);
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 
     private function GetRuleDoc(&$item)

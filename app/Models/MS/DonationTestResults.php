@@ -14,29 +14,29 @@ class DonationTestResults extends Model
     protected $table = 'DonationTestResults';
     protected $fillable = [
         'UniqueId'
-      ,'DonationId'
-      ,'TestTypeId'
-      ,'IsDone'
-      ,'TestValue'
-      ,'MinValue'
-      ,'MaxValue'
-      ,'DeviationType'
-      ,'CreateDate'
-      ,'UserId'
+        , 'DonationId'
+        , 'TestTypeId'
+        , 'IsDone'
+        , 'TestValue'
+        , 'MinValue'
+        , 'MaxValue'
+        , 'DeviationType'
+        , 'CreateDate'
+        , 'UserId'
     ];
     public $timestamps = false;
 
     const Fields = [
 //        ['ms' => 'UniqueId', 'aist' => 'medical_id'],
         ['ms' => 'DonationId', 'aist' => 'donation_id'],
-        ['ms' => 'TestTypeId', 'aist' => 'donation_id'],
-//        ['ms' => 'IsDone', 'aist' => 'donation_id'],
-//        ['ms' => 'TestValue', 'aist' => 'donation_id'],
+        ['ms' => 'TestTypeId', 'aist' => 'test_type_id'],
+        ['ms' => 'IsDone', 'aist' => 'donation_id', 'default' => 'const.Donations.IsDeleted'],
+        ['ms' => 'TestValue', 'aist' => 'test_value'],
 //         ['ms' => 'MinValue', 'aist' => 'donation_id'],
 //         ['ms' => 'MaxValue', 'aist' => 'donation_id'],
-         ['ms' => 'DeviationType', 'aist' => 'donation_id'],
-         ['ms' => 'CreateDate', 'aist' => 'created'],
-         ['ms' => 'UserId', 'aist' => 'author_id', 'db_const' => 'CreateUserId'],
+        ['ms' => 'DeviationType', 'aist' => 'donation_id', 'default' => 'const.Donations.IsDeleted'],
+        ['ms' => 'CreateDate', 'aist' => 'created'],
+        ['ms' => 'UserId', 'aist' => 'author_id', 'db_const' => 'CreateUserId'],
 
     ];
     const ID = 'medical_id';

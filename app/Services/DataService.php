@@ -68,6 +68,7 @@ class DataService
         $this->document_type();
         $this->phenotype();//тут надо придумать как лучше
         $this->donation_type_id();
+        $this->analis();
 //       dd( array_diff($item, $this->convert_item));//показывает какие строчки поменялись
 //        dump($item);//исходный
 //        dd($this->convert_item);//готовый
@@ -351,5 +352,21 @@ class DataService
             $this->convert_item['ex_type'] = 'not_found';
         }
 
+    }
+
+    private function analis()
+    {
+        $map = [
+            'ДА' => 'POS',
+            'НЕТ' => 'NEG',
+        ];
+
+        $fields = ['vich', 'hbs', 'sif', 'hcv'];
+
+        foreach ($fields as $field) {
+            if (isset($map[$this->convert_item[$field]])) {
+                $this->convert_item[$field] = $map[$this->convert_item[$field]];
+            }
+        }
     }
 }
