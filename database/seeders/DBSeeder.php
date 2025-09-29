@@ -13,11 +13,17 @@ class DBSeeder extends Seeder
     public function run(): void
     {
         DB::firstOrCreate([
-            'host' => 'localhost'], [
+            'name' => 'Base config'], [
             'port' => '1433',
             'database' => 'dev',
             'username' => 'sa',
             'password' => 'root',
+            'user_id' => '-20',
+            'department_id' => 0,
+            'host' => 'localhost',
+            'url_aist' => '',
+            'active' => true,
+
         ]);
     }
 }

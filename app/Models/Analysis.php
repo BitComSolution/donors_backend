@@ -20,9 +20,9 @@ class Analysis extends Model
         'name' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
         'middlename' => ['regex:/^(?:[А-ЯЁ][А-ЯёЁа-я -]+)?$/u'],
         'snils' => ['required', 'regex:/^(\d{11})$/u'],
-        'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
-        'kell' => ['regex:/^[\d-]{1}/u'],
-        'birth_date' => ['required', 'date_format:Y-d-m H:i:s'],
+//        'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
+//        'kell' => ['regex:/^[\d-]{1}/u'],
+        'birth_date' => ['required', 'date_format:Y-m-d H:i:s'],
         'phenotype' => ['integer', 'regex:/^\d{0,10}/u'],
 
     ];

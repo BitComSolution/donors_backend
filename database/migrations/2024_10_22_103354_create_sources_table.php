@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('name', length: 30);
             $table->string('middlename', length: 30)->nullable();
             $table->string('gender', length: 1)->nullable();
-            $table->date('birth_date');
+            $table->date('birth_date')->nullable();
             $table->string('snils', length: 11)->nullable();
             $table->tinyInteger('blood_group')->nullable();
             $table->string('rh_factor', length: 1)->nullable();
@@ -28,13 +28,12 @@ return new class extends Migration {
             $table->string('document', length: 30);
             $table->string('donation_id', length: 12);
             $table->integer('donor_card_id');
-            $table->tinyInteger('donation_org_id');
             $table->string('donation_org_name', length: 39)->nullable();
             $table->string('donation_type_id', length: 3);
             $table->date('donation_date');
             $table->string('donation_barcode', length: 12);
             $table->smallInteger('donation_volume');
-            $table->string('address', length: 120)->nullable();
+            $table->string('address', length: 255)->nullable();
             $table->string('document_type', length: 7);
             $table->string('document_serial', length: 5);
             $table->string('document_number', length: 6);
@@ -48,7 +47,6 @@ return new class extends Migration {
             $table->date('ex_started')->nullable();
             $table->date('ex_removed')->nullable();
             $table->date('ex_created')->nullable();
-            $table->tinyInteger('author_id');
             $table->string('research_id', length: 12);
             $table->integer('org_owner_id')->nullable();
 //            $table->string('org_owner_id', length: 39)->nullable();
@@ -58,7 +56,6 @@ return new class extends Migration {
             $table->date('research_date');
             $table->string('research_result', length: 9);
             $table->date('created');
-            $table->tinyInteger('author_id_code');
             $table->string('author_id_name', length: 39)->nullable();
             $table->string('remove_flg', length: 10);
             $table->string('analysis_result', length: 10)->nullable();
@@ -71,7 +68,6 @@ return new class extends Migration {
 //            $table->string('donor_card_id_4', length: 39);
             $table->date('research_date_2');
             $table->date('created_2');
-            $table->tinyInteger('author_id_2');
             $table->string('remove_flg_2', length: 10);
             $table->string('doctor_visit_result', length: 100)->nullable();
             $table->integer('donor_card_id_5');
@@ -106,6 +102,12 @@ return new class extends Migration {
             $table->string('hbsraw', 10)->nullable();
             $table->string('sifraw', 10)->nullable();
             $table->string('hcvraw', 10)->nullable();
+            $table->integer('kod_128')->nullable();
+            $table->integer('donation_org_128')->nullable();
+            $table->integer('donation_org_id');
+            $table->integer('author_id');
+            $table->integer('author_id_code');
+            $table->integer('author_id_2');
             $table->timestamps();
         });
 //        Schema::connection('db_two')->create('blooddata', function (Blueprint $table) {

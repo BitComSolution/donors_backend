@@ -48,7 +48,7 @@ class Deferrals extends Model
 //        ['ms' => 'RevokedUserId', 'aist' => 'card_id'],
 //        ['ms' => 'RevokedOrgId', 'aist' => 'card_id'],
         ['ms' => 'CreateDate', 'aist' => 'created'],
-        ['ms' => 'CreateUserId', 'aist' => 'card_id', 'db_const' => 'CreateUserId'],
+        ['ms' => 'CreateUserId', 'aist' => 'card_id', 'db_const' => 'user_id'],
 //        ['ms' => 'LastModifiedDate', 'aist' => 'card_id'],
 //        ['ms' => 'LastModifiedUserId', 'aist' => 'card_id'],
         ['ms' => 'Comments', 'aist' => 'comment'],

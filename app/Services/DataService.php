@@ -31,7 +31,7 @@ class DataService
     {
         $db = DB::where('active', true)->first();
         Config::set("database.connections.sqlsrv", [
-            'driver' => 'sqlsrv',
+            'driver' => 'dblib',
             'host' => $db->host,
             'port' => $db->port,
             'database' => $db->database,
@@ -104,7 +104,7 @@ class DataService
         $model = Analysis::class;
         $item['card_id'] = $item['num'];
         $item['rh_factor'] = $item['rh'];
-        $item['created'] = Carbon::now()->addHours(3)->format('Y-d-m H:i:s');
+        $item['created'] = Carbon::now()->addHours(3)->format('Y-m-d H:i:s');
         unset($item['rh']);
         $this->convert_item = $item;
         $this->date_fields = $model::DATE_FIELDS;
@@ -126,7 +126,7 @@ class DataService
     public function OsmotrConvert($item)
     {
         $model = Osmotr::class;
-        $item['created'] = Carbon::now()->addHours(3)->format('Y-d-m H:i:s');
+        $item['created'] = Carbon::now()->addHours(3)->format('Y-m-d H:i:s');
         $this->convert_item = $item;
         $this->date_fields = $model::DATE_FIELDS;
         $this->OrgId();
@@ -184,13 +184,13 @@ class DataService
     {
         foreach ($this->date_fields as $date) {
             if (isset($this->convert_item[$date]))
-                $this->convert_item[$date] = Carbon::parse($this->convert_item[$date])->format('Y-d-m H:i:s');
+                $this->convert_item[$date] = Carbon::parse($this->convert_item[$date])->format('Y-m-d H:i:s');
         }
     }
 
     private function LastModifiedDate()
     {
-        $this->convert_item['LastModifiedDate'] = Carbon::now()->addHours(3)->format('Y-d-m H:i:s');
+        $this->convert_item['LastModifiedDate'] = Carbon::now()->addHours(3)->format('Y-m-d H:i:s');
     }
 
     private function rh_factor()

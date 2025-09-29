@@ -28,6 +28,9 @@ return new class extends Migration {
             $table->string('LastModifiedDate')->nullable();
             $table->string('rh_factor')->nullable();
             $table->string('snils')->nullable();
+            $table->string('document_serial');
+            $table->string('document_number');
+            $table->string('document');
             $table->boolean('validated')->default(true);
             $table->timestamps();
         });

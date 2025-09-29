@@ -37,6 +37,7 @@ return new class extends Migration {
             $table->integer('kod_128')->nullable();
             $table->boolean('validated')->default(true);
             $table->json('error')->nullable();
+            $table->string('document_type', length: 255)->nullable();
             $table->timestamps();
 
         });

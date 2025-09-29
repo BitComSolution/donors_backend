@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('title');
             $table->dateTime('last_start')->default(now());
             $table->integer('period_hours')->default(1);
+            $table->boolean('run')->default(false);
             $table->timestamps();
         });
     }

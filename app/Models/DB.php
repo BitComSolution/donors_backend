@@ -10,6 +10,10 @@ class DB extends Model
     use HasFactory;
 
     protected $fillable = [
+        'name',
+        'user_id',
+        'department_id',
+        'url_aist',
         'host',
         'port',
         'database',

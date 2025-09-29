@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('snils')->nullable()->change();
             $table->string('rh_factor')->nullable()->change();
             $table->string('kell')->nullable()->change();
-            $table->string('phenotype')->nullable()->change();
             $table->string('document')->change();
             $table->string('donation_id')->change();
             $table->string('donation_org_name')->nullable()->change();
@@ -70,7 +69,6 @@ return new class extends Migration
             $table->integer('blood_group')->nullable()->change();
             $table->string('rh_factor')->nullable()->change();
             $table->string('kell')->nullable()->change();
-            $table->string('phenotype')->nullable()->change();
             $table->string('document')->change();
             $table->string('address')->nullable()->change();
             $table->string('document_serial')->change();

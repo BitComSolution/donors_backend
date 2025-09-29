@@ -12,6 +12,10 @@ return new class extends Migration {
     {
         Schema::create('d_b_s', function (Blueprint $table) {
             $table->id();
+            $table->string('name')->default("Name DB");
+            $table->string('user_id')->default(-20);
+            $table->string('department_id')->default(0);
+            $table->string('url_aist')->default('127.0.0.1:5050');
             $table->string('host');
             $table->string('port');
             $table->string('database');

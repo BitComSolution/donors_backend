@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('edit/{db}', [DBController::class, 'edit']);
         Route::post('create', [DBController::class, 'create']);
         Route::delete('delete/{db}', [DBController::class, 'delete']);
+        Route::put('switch/{db}', [DBController::class, 'switchDB']);
     });
     Route::prefix('command')->group(function () {
         Route::get('get', [ScheduledController::class, 'get']);

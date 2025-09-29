@@ -14,7 +14,6 @@ return new class extends Migration {
             $table->integer('gender')->nullable()->change();
             $table->integer('rh_factor')->nullable()->change();
             $table->integer('kell')->nullable()->change();
-            $table->integer('phenotype')->nullable()->change();
             $table->integer('OrgId')->nullable();
             $table->string('LastModifiedDate')->nullable();
 
@@ -34,7 +33,6 @@ return new class extends Migration {
             $table->integer('gender')->nullable()->change();
             $table->integer('rh_factor')->nullable()->change();
             $table->integer('kell')->nullable()->change();
-            $table->integer('phenotype')->nullable()->change();
             $table->string('created')->nullable()->change();
             $table->string('LastModifiedDate')->nullable();
             $table->integer('OrgId')->nullable();

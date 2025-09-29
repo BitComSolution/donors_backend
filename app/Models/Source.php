@@ -20,7 +20,7 @@ class Source extends Model
         'name' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
         'middlename' => ['regex:/^(?:[А-ЯЁ][А-ЯёЁа-я -]+)?$/u'],
 //        'gender' => [''],
-        'birth_date' => ['required', 'date_format:Y-d-m H:i:s'],//как в бд
+        'birth_date' => ['required', 'date_format:Y-m-d H:i:s'],//как в бд
         'snils' => ['required', 'regex:/^(\d{11})$/u'],
         'blood_group' => ['integer', 'between:1,4'],
         'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
@@ -31,7 +31,7 @@ class Source extends Model
         'donor_card_id' => ['required'],
         'donation_org_id' => ['required'],
         'donation_type_id' => ['required'],
-        'donation_date' => ['required', 'date_format:Y-d-m H:i:s'],//как в бд
+        'donation_date' => ['required', 'date_format:Y-m-d H:i:s'],//как в бд
         'donation_barcode' => ['required', 'regex:/^(\d{12})$/u'],
         'donation_volume' => ['required', 'between:1,800'],
 //        'address' => ['regex:/^[А-Яа-я\- .\d\/]+/u'],//в исходной базе лежат не правильные данные

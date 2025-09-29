@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->tinyInteger('blood_group')->nullable();
             $table->integer('rh_factor')->nullable();
             $table->integer('kell')->nullable();
-            $table->integer('phenotype')->nullable();
+            $table->string('phenotype')->nullable();
             $table->string('anti_erythrocyte_antibodies')->nullable();
             $table->string('document_type');
             $table->string('date')->nullable();

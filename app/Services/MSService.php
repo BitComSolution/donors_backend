@@ -33,14 +33,14 @@ class MSService
     public function send($ids = [])
     {
         //создаю подключение к МС
-        $db = DB::where('active', true)->first();
+        $this->db = DB::where('active', true)->first();
         Config::set("database.connections.sqlsrv", [
-            'driver' => 'sqlsrv',
-            'host' => $db->host,
-            'port' => $db->port,
-            'database' => $db->database,
-            'username' => $db->username,
-            'password' => $db->password,
+            'driver' => 'dblib',
+            'host' => $this->db->host,
+            'port' => $this->db->port,
+            'database' => $this->db->database,
+            'username' => $this->db->username,
+            'password' => $this->db->password,
             'charset' => env('DB_CHARSET_MS', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
@@ -50,6 +50,7 @@ class MSService
 
         $this->orgs = Org::all()->pluck('start', 'code');
         $this->medicaltypes = MedicalTypes::all()->pluck('Id', 'Code');
+        $this->deferraltypes = DeferralTypes::all()->pluck('UniqueId', 'Code');
 
         $status = Scheduled::where('run', true)->first();
         if (!is_null($status)) {
@@ -58,87 +59,37 @@ class MSService
         $command = Scheduled::where('title', 'ms')->first();
         $command['run'] = true;
         $command->save();
+        try {
+            //перенос всех записей в мс
+            $this->MSSend(Source::class, $ids);
+            $this->MSSend(Otvod::class, $ids);
+            $this->MSSend(Analysis::class, $ids);
+            $this->MSSend(Osmotr::class, $ids);
 
-
-        //перенос всех записей в мс
-        $source = Source::where("validated", true);
-        if (!empty($ids)) {
-            $source = $source->whereIn("card_id", $ids);
+            Personas::truncate();
+        } finally {
+            $command['run'] = false;
+            $command->save();
         }
-        $source = $source->get();
-        foreach ($source as $item) {
+        return true;
+    }
+
+    private function MSSend($model, $ids = [])
+    {
+        $data = $model::where("validated", true);
+        if (!empty($ids)) {
+            $data = $data->whereIn("card_id", $ids);
+        }
+        $data = $data->get();
+        foreach ($data as $item) {
             try {
-                $this->createRecord($item);
+                $this->{$model}($item);
             } catch (\Exception $exception) {
                 Log::channel('ms')->info('Error ' . $item['card_id'] . '  ' . $exception->getMessage());
 //                dump($exception->getMessage());
             }
         }
-        $source = Source::all();
-        $source->each->delete();
-
-
-//        //перенос отводов
-        $otvod = Otvod::where("validated", true);
-        if (!empty($ids)) {
-            $otvod = $otvod->whereIn("card_id", $ids);
-        }
-        $otvod = $otvod->get();
-        $this->deferraltypes = DeferralTypes::all()->pluck('UniqueId', 'Code');
-        foreach ($otvod as $item) {
-            try {
-                $this->createRecordOtvod($item);
-            } catch (\Exception $exception) {
-                Log::channel('ms')->info('Error otvod' . $item['card_id'] . '  ' . $exception->getMessage());
-//                dump($exception->getMessage());
-            }
-        }
-        $otvod = Otvod::all();
-        $otvod->each->delete();
-
-
-        //перенос анализов
-        $analysis = Analysis::where("validated", true);
-        if (!empty($ids)) {
-            $analysis = $analysis->whereIn("card_id", $ids);
-        }
-        $analysis = $analysis->get();
-        foreach ($analysis as $item) {
-            try {
-                $this->createRecordAnalysis($item);
-            } catch (\Exception $exception) {
-                Log::channel('ms')->info('Error analysis' . '  ' . $exception->getMessage());
-//                dump($exception->getMessage());
-            }
-        }
-        $analysis = Analysis::all();
-        $analysis->each->delete();
-
-
-        //перенос осмотров
-        $osmotr = Osmotr::where("validated", true);
-        if (!empty($ids)) {
-            $osmotr = $osmotr->whereIn("card_id", $ids);
-        }
-        $osmotr = $osmotr->get();
-        foreach ($osmotr as $item) {
-            try {
-                $this->createRecordOsmotr($item);
-            } catch (\Exception $exception) {
-                Log::channel('ms')->info('Error osmotr' . '  ' . $exception->getMessage());
-//                dump($exception->getMessage());
-            }
-        }
-        $osmotr = Osmotr::all();
-        $osmotr->each->delete();
-
-        $personas = Personas::all();
-        $personas->each->delete();
-        //освобождение очереди
-        $command['run'] = false;
-        $command->save();
-        return true;
-
+        $model::truncate();
     }
 
     private function createBody($item, $fields = [])
@@ -148,14 +99,14 @@ class MSService
             if (isset($field['default']))
                 $body[$field['ms']] = config($field['default']);
             if (isset($field['db_const']))
-                $body[$field['ms']] = Constant::where('name', $field['db_const'])->first()->value;
+                $body[$field['ms']] = $this->db->{$field['db_const']};
             if (!isset($field['default']) && !isset($field['db_const']))
                 $body[$field['ms']] = $item[$field['aist']];
         }
         return $body;
     }
 
-    private function createRecord($item)
+    private function Source($item)
     {
         //работа с адресами
         $item = $this->createAddress($item);
@@ -170,7 +121,7 @@ class MSService
         return $item;
     }
 
-    private function createRecordOtvod($item)
+    private function Otvod($item)
     {
         //работа с адресами
         $item = $this->createAddress($item);
@@ -184,7 +135,7 @@ class MSService
         return $item;
     }
 
-    private function createRecordAnalysis($item)
+    private function Analysis($item)
     {
         //работа с адресами
         $item = $this->createAddress($item);
@@ -200,7 +151,7 @@ class MSService
         return $item;
     }
 
-    private function createRecordOsmotr($item)
+    private function Osmotr($item)
     {
         //работа с адресами
         $item = $this->createAddress($item);
@@ -232,6 +183,7 @@ class MSService
 
     private function createPersonCards($item)
     {
+        $item['org_min'] = $this->orgs[$item['kod_128']];
         $item['card_id'] = $this->orgs[$item['kod_128']] + $item['card_id'];
         PersonCards::updateOrCreate(
             ['UniqueId' => $item['card_id']],
@@ -340,9 +292,8 @@ class MSService
     private function UniqueIdCreate($model, $item)//проверить
     {
         $model_id = $model::orderByDesc('UniqueId')->limit(1)->first();
-        $min = Constant::where('name', 'UniqueIdMIN')->first()->value;
-        if (is_null($model_id) || $model_id['UniqueId'] < $min)
-            $item[$model::ID] = $min;
+        if (is_null($model_id) || $model_id['UniqueId'] < $item['org_min'])
+            $item[$model::ID] = $item['org_min'];
         else {
             $item[$model::ID] = $model_id['UniqueId'] + 1;
         }

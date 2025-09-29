@@ -30,7 +30,10 @@ class Personas extends Model
         'LastModifiedDate',
         'rh_factor',
         'snils',
-        'validated'
+        'validated',
+        'document_serial',
+        'document_number',
+        'document'
     ];
 
 }

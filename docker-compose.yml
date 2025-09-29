@@ -1,62 +1,65 @@
-version: '3.8'
+version: '3.9'
 
 services:
-    redis:
-        container_name: ${SERVICE}-redis
-        image: redis:latest
-        restart: unless-stopped
-        tty: true
-        command: redis-server --appendonly yes
-        volumes:
-            - donors_redis:/data
-        networks:
-            - infrastructure
+  # PHP + Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    ports:
+      - "8006:8000"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mariadb
+      - redis
+    networks:
+      - laravel
 
-    db:
-        container_name: ${SERVICE}-db
-        image: postgres:latest
-        restart: unless-stopped
-        tty: true
-        environment:
-            POSTGRES_USER: ${DB_USERNAME}
-            POSTGRES_PASSWORD: ${DB_PASSWORD}
-            POSTGRES_DB: ${DB_DATABASE}
-            POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS}
-        volumes:
-            - donors_db:/var/lib/postgresql/data
-            - donors_db:/docker-entrypoint-initdb.d
-        networks:
-            - infrastructure
+  # MariaDB
+  mariadb:
+    image: mariadb:11.4
+    container_name: laravel-mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    ports:
+        - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - laravel
 
-#    mysql:
-#        image: mysql:latest
-#        volumes:
-#            - donors_mysql:/var/lib/mysql
-#        container_name: mysql
-#        restart: unless-stopped
-#        tty: true
-#        ports:
-#            - "${MYSQL_PORT}:3306"
-#        environment:
-#            SERVICE_TAGS: dev
-#            SERVICE_NAME: mysql
-#            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD_TWO}
-#            MYSQL_DATABASE: ${DB_DATABASE_TWO}
-#            MYSQL_USER: ${DB_USERNAME_TWO}
-#            MYSQL_PASSWORD: ${DB_PASSWORD_TWO}
-#        networks:
-#            - infrastructure
+  # Redis
+  redis:
+    image: redis:7
+    container_name: laravel-redis
+    restart: always
+    networks:
+      - laravel
+
+  # Laravel Queue Worker
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-queue
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - app
+      - redis
+    networks:
+      - laravel
 
 volumes:
-    donors_redis: { }
-    donors_db: { }
-#    donors_mysql: { }
+  mariadb_data:
 
 networks:
-    infrastructure:
-        name: ${SERVICE}_donors_infrastructure
-        driver: bridge
-
-    donors_infrastructure:
-        name: donors_infrastructure
-        driver: bridge
+  laravel:
+    driver: bridge

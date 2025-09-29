@@ -17,10 +17,13 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $data['name'] = 'Admin';
-        $data['email'] = 'admin@admin.ru';
-        $data['password'] = Hash::make('passwordDonor!2024');
-        User::create($data);
+        User::firstOrCreate(
+            ['email' => 'admin@admin.ru'], // поля для поиска
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('passwordDonor!2024'),
+            ]
+        );
         $this->call([
             CommandSeeder::class,
             DefTypesSeeder::class,

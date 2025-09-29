@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Analysis;
+use App\Models\DB;
 use App\Models\EventLog;
 use App\Models\Logs;
 use App\Models\Osmotr;
@@ -32,35 +33,30 @@ class SourceService
         $command = Scheduled::where('title', 'aist')->first();
         $command['run'] = true;
         $command->save();
-        $this->service = new DataService;
-        //очиска бд
-        $source = Source::all();
-        $source->each->delete();
-        $otvod = Otvod::all();
-        $otvod->each->delete();
-        $analysis = Analysis::all();
-        $analysis->each->delete();
-        $osmotr = Osmotr::all();
-        $osmotr->each->delete();
-        $personas = Personas::all();
-        $personas->each->delete();
-        EventLog::create(['type' => 'ready']);
+        try {
+            $this->service = new DataService;
+            //очиска бд
+            Source::truncate();
+            Otvod::truncate();
+            Analysis::truncate();
+            Osmotr::truncate();
+            Personas::truncate();
+            EventLog::create(['type' => 'ready']);
 //        получение новых записей
-        $items = BloodData::all();
-        $this->sync($items, Source::class);
-        $items = OtvodAist::all();
-        $this->sync($items, Otvod::class);
-        $items = AnalcliData::all();
-        $this->sync($items, Analysis::class);
-        $items = OsmotrData::all();
-        $this->sync($items, Osmotr::class);
-        $command['run'] = false;
-        $command->save();
+            $this->sync(Source::class);
+            $this->sync(Otvod::class);
+            $this->sync(Analysis::class);
+            $this->sync(Osmotr::class);
+        } finally {
+            $command['run'] = false;
+            $command->save();
+        }
         return [];
     }
 
-    private function sync($items, $model)
+    private function sync($model)
     {
+        $items = $model::all();
         $all = [];
         $error = [];
         foreach ($items as $item) {
@@ -97,8 +93,11 @@ class SourceService
 
     public function sendCommand($start, $end)
     {
+        $record = DB::where('active', true)->first();
+        if (!$record) return 0;
+        $url_aist = $record->url_aist;
         //отправка команды чтобы сервис обновился
-        $client = Http::post(config('aist.url') . '/start', [
+        $client = Http::post($url_aist . '/start', [
             "startDate" => $start,
             "endDate" => $end
         ]);
@@ -107,11 +106,17 @@ class SourceService
 
     public static function getStatus()
     {
-        try {
-            $response = Http::timeout(5)->get(config('aist.url') . '/status');
+        $record = DB::where('active', true)->first();
+        if (!$record) return 0;
 
-            return (int)($response->successful()
-                && strcasecmp(trim($response->body()), 'Finished') === 0);
+        try {
+            $url_aist = $record->url_aist;
+            $response = Http::timeout(5)->get($url_aist . '/status');
+
+            return (int)(
+                $response->successful()
+                && strpos($response->body(), 'Get data from') !== false
+            );
         } catch (\Exception $e) {
             return 0;
         }
