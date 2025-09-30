@@ -83,7 +83,8 @@ class MSService
         $data = $data->get();
         foreach ($data as $item) {
             try {
-                $this->{$model}($item);
+                $method = class_basename($model);
+                $this->{$method}($item);
             } catch (\Exception $exception) {
                 Log::channel('ms')->info('Error ' . $item['card_id'] . '  ' . $exception->getMessage());
 //                dump($exception->getMessage());
