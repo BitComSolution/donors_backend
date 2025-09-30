@@ -35,7 +35,7 @@ class MSService
         //создаю подключение к МС
         $this->db = DB::where('active', true)->first();
         Config::set("database.connections.sqlsrv", [
-            'driver' => 'dblib',
+            'driver' => 'sqlsrv',
             'host' => $this->db->host,
             'port' => $this->db->port,
             'database' => $this->db->database,
