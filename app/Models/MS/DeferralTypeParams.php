@@ -11,7 +11,7 @@ class DeferralTypeParams extends Model
 
     protected $connection = 'sqlsrv';
     protected $primaryKey = 'DeferralTypeId';
-    protected $table = 'ref.DeferralTypes';
+    protected $table = 'ref.DeferralTypeParams';
     protected $fillable = ['DeferralTypeId'
         , 'TempDeferralPeriod'
         , 'EpidControlPeriod'
