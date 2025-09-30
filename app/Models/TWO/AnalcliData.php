@@ -9,6 +9,6 @@ class AnalcliData extends Model
 {
     use HasFactory;
 
-    protected $connection = 'db_two';
+    protected $connection = 'pgsql';
     protected $table = 'analclidata';
 }

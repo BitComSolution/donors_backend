@@ -31,7 +31,7 @@ class DataService
     {
         $db = DB::where('active', true)->first();
         Config::set("database.connections.sqlsrv", [
-            'driver' => 'dblib',
+            'driver' => 'sqlsrv',
             'host' => $db->host,
             'port' => $db->port,
             'database' => $db->database,

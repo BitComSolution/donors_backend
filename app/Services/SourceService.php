@@ -43,10 +43,14 @@ class SourceService
             Personas::truncate();
             EventLog::create(['type' => 'ready']);
 //        получение новых записей
-            $this->sync(Source::class);
-            $this->sync(Otvod::class);
-            $this->sync(Analysis::class);
-            $this->sync(Osmotr::class);
+        $items = BloodData::all();
+        $this->sync($items, Source::class);
+        $items = OtvodAist::all();
+        $this->sync($items, Otvod::class);
+        $items = AnalcliData::all();
+        $this->sync($items, Analysis::class);
+        $items = OsmotrData::all();
+        $this->sync($items, Osmotr::class);
         } finally {
             $command['run'] = false;
             $command->save();
@@ -54,9 +58,8 @@ class SourceService
         return [];
     }
 
-    private function sync($model)
+    private function sync($items,$model)
     {
-        $items = $model::all();
         $all = [];
         $error = [];
         foreach ($items as $item) {
