@@ -36,7 +36,9 @@ class SourceController extends Controller
             $value['source'] = Source::where('card_id', $value['card_id'])->count();
             $value['analysis'] = Analysis::where('num', $value['card_id'])->count();
             $value['osmotr'] = Osmotr::where('card_id', $value['card_id'])->count();
-            $value['name_org'] = Org::where('code', $value['kod_128'])->first()->name;
+            $value['name_org'] = optional(
+                Org::where('code', $value['kod_128'])->first()
+            )->name;
             return $value;
         });
         return response()->json($list);
@@ -49,7 +51,7 @@ class SourceController extends Controller
         $data['otvod'] = Otvod::where('card_id', $id)->get();
         $data['analysis'] = Analysis::where('num', $id)->get();
         $data['osmotr'] = Osmotr::where('card_id', $id)->get();
-        $data['name_org'] = Org::where('code', $data['kod_128'])->first()->name;
+        $data['name_org'] = optional(Org::where('code', $data['kod_128'])->first())->name;
         $errors = [];
         foreach ([$data['source'], $data['otvod'], $data['analysis'], $data['osmotr']] as $collection) {
             foreach ($collection as $item) {
