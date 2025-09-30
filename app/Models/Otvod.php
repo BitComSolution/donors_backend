@@ -29,7 +29,7 @@ class Otvod extends Model
 //        'blood_group' => ['integer', 'between:1,4'],
 //        'rh_factor' => ['regex:/^[+-]{1}/u'],
 //        'kell' => ['regex:/^[+-]{1}/u'],
-//        'phenotype' => ['regex:/^[+ -]{6,7}/u'],
+       'phenotype' => ['integer', 'regex:/^\d{0,10}/u'],
 //        'document' => ['required'],
 //        'donation_id' => ['required', 'regex:/^(\d{12})$/u'],
 //        'donor_card_id' => ['required'],

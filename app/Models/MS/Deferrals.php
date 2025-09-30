@@ -42,7 +42,7 @@ class Deferrals extends Model
         ['ms' => 'DeferralTypeId', 'aist' => 'ex_type'],
 //        ['ms' => 'TestResultId', 'aist' => 'card_id'],
         ['ms' => 'StartDate', 'aist' => 'created_date'],
-//        ['ms' => 'StopDate', 'aist' => 'card_id'],
+        ['ms' => 'StopDate', 'aist' => 'stop_date'],
 //        ['ms' => 'RevokeDate', 'aist' => 'card_id'],
 //        ['ms' => 'RevokeReason', 'aist' => 'card_id'],
 //        ['ms' => 'RevokedUserId', 'aist' => 'card_id'],

@@ -33,7 +33,10 @@ class Personas extends Model
         'validated',
         'document_serial',
         'document_number',
-        'document'
+        'document',
+        'kod_128',
+        'document_type',
+        'anti_erythrocyte_antibodies'
     ];
 
 }

@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Models\Analysis;
 use App\Models\DB;
 use App\Models\DefTypes;
+use App\Models\MS\DeferralTypeParams;
 use App\Models\MS\DeferralTypes;
 use App\Models\MS\DonationTypes;
 use App\Models\MS\Organizations;
@@ -26,6 +27,7 @@ class DataService
     protected $vng;//вид на жительство
     protected $deferral_types;//список типов отводов из МС
     protected $def_types_const;//список типов отводов из файла
+    protected $def_types_params;//список типов отводов и их периода
 
     public function __construct()
     {
@@ -47,6 +49,7 @@ class DataService
         $this->organizations = Organizations::all()->pluck('UniqueId', 'OrgCode');
         $this->deferral_types = DeferralTypes::all()->pluck('UniqueId', 'Code');
         $this->def_types_const = DefTypes::all()->pluck('eidbCode', 'aistCode');
+        $this->def_types_params = DeferralTypeParams::all()->pluck('TempDeferralPeriod', 'DeferralTypeId');
         $this->donation_types_const = config('const.DonationType');
         $this->vng = config('const.DocType.VNG');
     }
@@ -348,6 +351,9 @@ class DataService
                 $name = $this->def_types_const[$this->convert_item['ex_type']];
                 $this->convert_item['ex_type'] = $this->deferral_types[$name];
             }
+            $period = $this->def_types_params[$this->convert_item['ex_type']];
+            if ($period == 0) $period = 99999;
+            $this->convert_item['stop_date'] = Carbon::parse($this->convert_item['created'])->addDays($period)->format('Y-m-d H:i:s');
         } catch (\Exception $exception) {
             $this->convert_item['ex_type'] = 'not_found';
         }

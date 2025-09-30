@@ -32,6 +32,9 @@ return new class extends Migration {
             $table->string('document_number');
             $table->string('document');
             $table->boolean('validated')->default(true);
+            $table->string('document_type')->nullable();
+            $table->string('anti_erythrocyte_antibodies', length: 1)->nullable();
+            $table->integer('kod_128')->nullable();
             $table->timestamps();
         });
     }
