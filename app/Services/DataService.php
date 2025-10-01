@@ -48,8 +48,13 @@ class DataService
         $this->donation_types = DonationTypes::all()->pluck('UniqueId', 'Code');
         $this->organizations = Organizations::all()->pluck('UniqueId', 'OrgCode');
         $this->deferral_types = DeferralTypes::all()->pluck('UniqueId', 'Code');
-        $this->def_types_const = DefTypes::all()->pluck('eidbCode', 'aistCode');
-        $this->def_types_params = DeferralTypeParams::all()->pluck('TempDeferralPeriod', 'DeferralTypeId');
+        $this->def_types_const = DefTypes::all()
+            ->pluck('eidbCode', 'aistCode')
+            ->mapWithKeys(fn($value, $key) => [strtolower($key) => strtolower($value)]);
+
+        $this->def_types_params = DeferralTypeParams::all()
+            ->pluck('TempDeferralPeriod', 'DeferralTypeId')
+            ->mapWithKeys(fn($value, $key) => [strtolower($key) => $value]);
         $this->donation_types_const = config('const.DonationType');
         $this->vng = config('const.DocType.VNG');
     }
@@ -344,6 +349,8 @@ class DataService
 
     private function typeDefferals()
     {
+        $this->convert_item['ex_type'] = ltrim($this->convert_item['ex_type'], '0');
+        $this->convert_item['ex_type'] = mb_strtolower($this->convert_item['ex_type']);
         try {
             if (isset($this->deferral_types[$this->convert_item['ex_type']])) {
                 $this->convert_item['ex_type'] = $this->deferral_types[$this->convert_item['ex_type']];
