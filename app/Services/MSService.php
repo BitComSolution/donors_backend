@@ -79,14 +79,14 @@ class MSService
     {
         $handle_success = LogService::createFile('eibd', $this->now . '_' . $model::LOG_NAME . '_success', $model::LOG_FIELD_MS);
         $handle_bad = LogService::createFile('eibd', $this->now . '_' . $model::LOG_NAME . '_bad', $model::LOG_FIELD_MS);
-
+        $query = $model::query();
         if (!empty($ids)) {
-            $model = $model->whereIn("card_id", $ids);
+            $query = $query->whereIn("card_id", $ids);
         }
-        $data = $model->get();
+        $data = $query->get();
         foreach ($data as $item) {
             try {
-                if ($item['validated']) {
+                if ($item->validated) {
                     $method = class_basename($model);
                     $this->{$method}($item);
                     $data['message'] = 'Успешно';
@@ -98,7 +98,7 @@ class MSService
                 }
             } catch (\Exception $exception) {
                 $data['message'] = $exception->getMessage();
-                LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $item);
+                LogService::addLine($handle_bad, $model::LOG_FIELD_MS, $item);
 
             }
         }

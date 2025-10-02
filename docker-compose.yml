@@ -7,6 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: laravel-app
+    restart: always
     ports:
       - "8006:8000"
     volumes:
@@ -34,6 +35,7 @@ services:
     networks:
       - laravel
 
+
   # Redis
   redis:
     image: redis:7
@@ -49,6 +51,7 @@ services:
       dockerfile: Dockerfile
     container_name: laravel-queue
     command: php artisan queue:work --verbose --tries=3
+    restart: always
     volumes:
       - .:/var/www/html
     depends_on:

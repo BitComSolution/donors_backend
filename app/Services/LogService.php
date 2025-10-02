@@ -8,7 +8,7 @@ class LogService
 
     public static function createFile($full_path, $name, $fields)
     {
-        $dir = storage_path('csv/'.$full_path);
+        $dir = storage_path('csv/' . $full_path);
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
         }
@@ -22,7 +22,7 @@ class LogService
     {
         $line = [];
         foreach ($fields as $field) {
-            $line[] = $data[$field];
+            $line[] = $data[$field] ?? '';
         }
         fputcsv($handle, $line);
     }
