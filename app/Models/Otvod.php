@@ -54,9 +54,27 @@ class Otvod extends Model
     const SYMBOLS =
         [' ', '-', '.', '_'];
 
-    const LOG_NAME = 'otvod';
+    const LOG_NAME = 'otvods';
 
-    const LOG_FIELD = [
+    const LOG_FIELD_CONVERT = [
+        'card_id',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'validated',
+        'message'
+    ];
+    const LOG_FIELD_VALIDATOR = [
+        'card_id',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'validated',
+        'message'
+    ];
+    const LOG_FIELD_MS = [
         'card_id',
         'name',
         'middlename',

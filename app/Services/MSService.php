@@ -51,6 +51,7 @@ class MSService
         $this->orgs = Org::all()->pluck('start', 'code');
         $this->medicaltypes = MedicalTypes::all()->pluck('Id', 'Code');
         $this->deferraltypes = DeferralTypes::all()->pluck('UniqueId', 'Code');
+        $this->now = Carbon::now()->format("Y_m_d-H_i_s");
 
         $status = Scheduled::where('run', true)->first();
         if (!is_null($status)) {
@@ -76,18 +77,29 @@ class MSService
 
     private function MSSend($model, $ids = [])
     {
-        $data = $model::where("validated", true);
+        $handle_success = LogService::createFile('eibd', $this->now . '_' . $model::LOG_NAME . '_success', $model::LOG_FIELD_MS);
+        $handle_bad = LogService::createFile('eibd', $this->now . '_' . $model::LOG_NAME . '_bad', $model::LOG_FIELD_MS);
+
         if (!empty($ids)) {
-            $data = $data->whereIn("card_id", $ids);
+            $model = $model->whereIn("card_id", $ids);
         }
-        $data = $data->get();
+        $data = $model->get();
         foreach ($data as $item) {
             try {
-                $method = class_basename($model);
-                $this->{$method}($item);
+                if ($item['validated']) {
+                    $method = class_basename($model);
+                    $this->{$method}($item);
+                    $data['message'] = 'Успешно';
+                    LogService::addLine($handle_success, $model::LOG_FIELD_MS, $item);
+                } else {
+                    $data['message'] = 'Ошибка валидации';
+                    LogService::addLine($handle_bad, $model::LOG_FIELD_MS, $item);
+
+                }
             } catch (\Exception $exception) {
-                Log::channel('ms')->info('Error ' . $item['card_id'] . '  ' . $exception->getMessage());
-//                dump($exception->getMessage());
+                $data['message'] = $exception->getMessage();
+                LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $item);
+
             }
         }
         $model::truncate();

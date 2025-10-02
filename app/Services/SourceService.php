@@ -26,6 +26,7 @@ class SourceService
 
     public function dbSynchronize()
     {
+        $this->now = Carbon::now()->format("Y_m_d-H_i_s");
         $status = Scheduled::where('run', true)->first();
         if (!is_null($status)) {
             return false;
@@ -43,14 +44,18 @@ class SourceService
             Personas::truncate();
             EventLog::create(['type' => 'ready']);
 //        получение новых записей
-        $items = BloodData::all();
-        $this->sync($items, Source::class);
-        $items = OtvodAist::all();
-        $this->sync($items, Otvod::class);
-        $items = AnalcliData::all();
-        $this->sync($items, Analysis::class);
-        $items = OsmotrData::all();
-        $this->sync($items, Osmotr::class);
+            $items = BloodData::all();
+            $this->createLogAist(Source::LOG_NAME, Source::LOG_FIELD_CONVERT, $items);
+            $this->sync($items, Source::class);
+            $items = OtvodAist::all();
+            $this->createLogAist(Otvod::LOG_NAME, Otvod::LOG_FIELD_CONVERT, $items);
+            $this->sync($items, Otvod::class);
+            $items = AnalcliData::all();
+            $this->createLogAist(Analysis::LOG_NAME, Analysis::LOG_FIELD_CONVERT, $items);
+            $this->sync($items, Analysis::class);
+            $items = OsmotrData::all();
+            $this->createLogAist(Osmotr::LOG_NAME, Osmotr::LOG_FIELD_CONVERT, $items);
+            $this->sync($items, Osmotr::class);
         } finally {
             $command['run'] = false;
             $command->save();
@@ -58,10 +63,10 @@ class SourceService
         return [];
     }
 
-    private function sync($items,$model)
+    private function sync($items, $model)
     {
-        $all = [];
-        $error = [];
+        $handle_success = LogService::createFile('validator', $this->now . '_' . $model::LOG_NAME . '_success', $model::LOG_FIELD_VALIDATOR);
+        $handle_bad = LogService::createFile('validator', $this->now . '_' . $model::LOG_NAME . '_bad', $model::LOG_FIELD_VALIDATOR);
         foreach ($items as $item) {
             try {
                 $data = $model::transform($this->service, $item);
@@ -71,6 +76,9 @@ class SourceService
                 $data['validated'] = !$validator->fails();
                 if ($validator->fails()) {
                     $data['error'] = $validator->failed();
+                    LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $data + ['message' => 'Ошибка валидации']);
+                } else {
+                    LogService::addLine($handle_success, $model::LOG_FIELD_VALIDATOR, $data + ['message' => 'Без ошибок']);
                 }
                 $model::create($data);
                 $pers = Personas::where('card_id', $data['card_id'])->first();
@@ -80,18 +88,14 @@ class SourceService
                     $data['validated'] = $data['validated'] && $pers['validated'];
                     $pers->update($data);
                 }
-                $data['message'] = 'Без ошибок';
-                $all[] = $data;
             } catch (\Exception $exception) {
                 $data['message'] = $exception->getMessage();
-                $error[] = $data;
+                LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $data);
                 continue;
             }
         }
-        if (!empty($all))
-            $this->createLog($model::LOG_NAME . '_all', $all, $model);
-        if (!empty($error))
-            $this->createLog($model::LOG_NAME . '_bad', $error, $model);
+        LogService::closeFile($handle_success);
+        LogService::closeFile($handle_bad);
     }
 
     public function sendCommand($start, $end)
@@ -146,24 +150,13 @@ class SourceService
         return $rules;
     }
 
-    public function createLog($name, $list, $model)
+    public function createLogAist($name, $fields, $data)
     {
-        $fields = $model::LOG_FIELD;
-        $csvFileName = $name . '_conv_' . Carbon::now()->format("Y_m_d-H_i_s") . '.csv';
-        $handle = fopen('php://temp/maxmemory:' . (5 * 1024 * 1024), 'r+');
-        fputcsv($handle, $fields);
-        foreach ($list as $donor) {
-            $line = [];
-            foreach ($fields as $field) {
-                $line[] = $donor[$field];
-            }
-            fputcsv($handle, $line);
+        $handle = LogService::createFile('converter', $this->now . '_' . $name . '_success', $fields);
+        foreach ($data as $item) {
+            LogService::addLine($handle, $fields, $item);
         }
-        rewind($handle);
-        $output = stream_get_contents($handle);
-        Storage::disk('local')->put($csvFileName, $output);
-        fclose($handle);
-        Logs::create(['name' => $name, 'error' => ($name == 'bad') ? true : false, 'file' => $csvFileName]);
+        LogService::closeFile($handle);
     }
 
     public function failLog()

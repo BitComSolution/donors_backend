@@ -54,7 +54,25 @@ class Osmotr extends Model
 
     const LOG_NAME = 'osmotr';
 
-    const LOG_FIELD = [
+    const LOG_FIELD_CONVERT = [
+        'card_id',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'validated',
+        'message'
+    ];
+    const LOG_FIELD_VALIDATOR = [
+        'card_id',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'validated',
+        'message'
+    ];
+    const LOG_FIELD_MS = [
         'card_id',
         'name',
         'middlename',

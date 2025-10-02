@@ -51,9 +51,35 @@ class Source extends Model
         'error' => 'array',
     ];
 
-    const LOG_NAME = 'main';
+    const LOG_NAME = 'donations';
 
-    const LOG_FIELD = [
+    const LOG_FIELD_CONVERT = [
+        'card_id',
+        'org_name',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'donation_id',
+        'donation_org_id',
+        'donation_date',
+        'validated',
+        'message'
+    ];
+    const LOG_FIELD_VALIDATOR = [
+        'card_id',
+        'org_name',
+        'name',
+        'middlename',
+        'gender',
+        'birth_date',
+        'donation_id',
+        'donation_org_id',
+        'donation_date',
+        'validated',
+        'message'
+    ];
+    const LOG_FIELD_MS = [
         'card_id',
         'org_name',
         'name',

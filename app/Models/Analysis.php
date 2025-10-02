@@ -34,9 +34,17 @@ class Analysis extends Model
     const SYMBOLS =
         [' ', '-', '.', '_'];
 
-    const LOG_NAME = 'analysis';
+    const LOG_NAME = 'analyzes';
 
-    const LOG_FIELD = [
+    const LOG_FIELD_CONVERT = [
+        'name', 'middlename', 'lastname', 'snils',
+        'message'
+    ];
+    const LOG_FIELD_VALIDATOR = [
+        'name', 'middlename', 'lastname', 'snils',
+        'message'
+    ];
+    const LOG_FIELD_MS = [
         'name', 'middlename', 'lastname', 'snils',
         'message'
     ];
