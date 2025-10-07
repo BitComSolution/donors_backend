@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('def_types', function (Blueprint $table) {
             $table->id();
-            $table->string('aistCode')->nullable();
-            $table->string('eidbCode')->nullable();
+            $table->string('aistCode')->collation('utf8mb4_bin')->nullable();
+            $table->string('eidbCode')->collation('utf8mb4_bin')->nullable();
             $table->string('name')->nullable();
             $table->timestamps();
         });

@@ -22,7 +22,12 @@ class LogService
     {
         $line = [];
         foreach ($fields as $field) {
-            $line[] = $data[$field] ?? '';
+            $value = $data[$field] ?? '';
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+
+            $line[] = $value;
         }
         fputcsv($handle, $line);
     }

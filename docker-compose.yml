@@ -1,68 +1,83 @@
 version: '3.9'
 
 services:
-  # PHP + Laravel
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: laravel-app
-    restart: always
-    ports:
-      - "8006:8000"
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - mariadb
-      - redis
-    networks:
-      - laravel
+    # PHP + Laravel
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: laravel-app
+        restart: always
+        ports:
+            - "8006:8000"
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - mariadb
+            - redis
+        networks:
+            - laravel
 
-  # MariaDB
-  mariadb:
-    image: mariadb:11.4
-    container_name: laravel-mariadb
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: laravel
-    ports:
-        - "3306:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-    networks:
-      - laravel
+    # MariaDB
+    mariadb:
+        image: mariadb:11.4
+        container_name: laravel-mariadb
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: laravel
+        ports:
+            - "3306:3306"
+        volumes:
+            - mariadb_data:/var/lib/mysql
+        networks:
+            - laravel
 
 
-  # Redis
-  redis:
-    image: redis:7
-    container_name: laravel-redis
-    restart: always
-    networks:
-      - laravel
+    # Redis
+    redis:
+        image: redis:7
+        container_name: laravel-redis
+        restart: always
+        networks:
+            - laravel
 
-  # Laravel Queue Worker
-  queue:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: laravel-queue
-    command: php artisan queue:work --verbose --tries=3
-    restart: always
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - app
-      - redis
-    networks:
-      - laravel
+    # Laravel Queue Worker
+    queue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: laravel-queue
+        command: php artisan queue:work --verbose --tries=3
+        restart: always
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - app
+            - redis
+        networks:
+            - laravel
 
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: laravel-scheduler
+        command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+        restart: always
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - app
+            - mariadb
+            - redis
+        networks:
+            - laravel
 volumes:
-  mariadb_data:
+    mariadb_data:
 
 networks:
-  laravel:
-    driver: bridge
+    laravel:
+        driver: bridge
