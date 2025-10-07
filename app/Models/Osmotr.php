@@ -67,19 +67,23 @@ class Osmotr extends Model
         'card_id',
         'name',
         'middlename',
+        'lastname',
         'gender',
         'birth_date',
         'validated',
-        'message'
+        'message',
+        'error'
     ];
     const LOG_FIELD_MS = [
         'card_id',
         'name',
         'middlename',
+        'lastname',
         'gender',
         'birth_date',
         'validated',
-        'message'
+        'message',
+        'error'
     ];
     protected $casts = [
         'error' => 'array',

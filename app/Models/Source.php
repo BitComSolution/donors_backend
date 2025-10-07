@@ -58,6 +58,7 @@ class Source extends Model
         'org_name',
         'name',
         'middlename',
+        'lastname',
         'gender',
         'birth_date',
         'donation_id',
@@ -71,26 +72,30 @@ class Source extends Model
         'org_name',
         'name',
         'middlename',
+        'lastname',
         'gender',
         'birth_date',
         'donation_id',
         'donation_org_id',
         'donation_date',
         'validated',
-        'message'
+        'message',
+        'error'
     ];
     const LOG_FIELD_MS = [
         'card_id',
         'org_name',
         'name',
         'middlename',
+        'lastname',
         'gender',
         'birth_date',
         'donation_id',
         'donation_org_id',
         'donation_date',
         'validated',
-        'message'
+        'message',
+        'error'
     ];
 
     const DATE_FIELDS = [
@@ -124,7 +129,7 @@ class Source extends Model
 //            'jk'       => 'jk',
 //            'kp'       => 'kp',
 //            'pi'       => 'pi',
-//            'pcrraw'   => 'pcrraw',
+            'MULT_PCR'   => 'pcrraw',
 //            'vichraw'  => 'vichraw',
 //            'hbsraw'   => 'hbsraw',
 //            'sifraw'   => 'sifraw',

@@ -47,6 +47,9 @@ class SourceController extends Controller
     public function getItem($id)
     {
         $data = Personas::where('card_id', $id)->first();
+        if (!$data) {
+            return response()->json(['error' => 'Person not found'], 404);
+        }
         $data['source'] = Source::where('card_id', $id)->get();
         $data['otvod'] = Otvod::where('card_id', $id)->get();
         $data['analysis'] = Analysis::where('num', $id)->get();
@@ -62,6 +65,9 @@ class SourceController extends Controller
                     }
                 }
             }
+        }
+        if (!$data['name_org']) {
+            $errors['name_org'] = ['Required'=>[]];
         }
         $data['error'] = $errors;
         return response()->json($data);

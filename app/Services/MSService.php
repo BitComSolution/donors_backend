@@ -237,6 +237,9 @@ class MSService
 
     private function createExaminations($item)
     {
+        $def = Deferrals::where('StartDate', $item['analysis_date'])
+            ->first();
+        $item['def_id'] = $def ? $def['UniqueId'] : null;
         //        беру послежний отвод для персональной карты
 //    если его нету то создаю запись
 //    если есть и дата создания отвода (analysis_date) равна дате StartDate

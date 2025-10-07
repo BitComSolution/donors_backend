@@ -42,11 +42,13 @@ class Analysis extends Model
     ];
     const LOG_FIELD_VALIDATOR = [
         'name', 'middlename', 'lastname', 'snils',
-        'message'
+        'message',
+        'error'
     ];
     const LOG_FIELD_MS = [
         'name', 'middlename', 'lastname', 'snils',
-        'message'
+        'message',
+        'error'
     ];
 
     const DATE_FIELDS = [
@@ -64,6 +66,8 @@ class Analysis extends Model
 
     const TYPES =
         [
+            'rh' => 'rh_factor',
+            'kell' => 'kell',
             'hb' => 'hb',
             'soe' => 'soe',
             'belok' => 'belok',

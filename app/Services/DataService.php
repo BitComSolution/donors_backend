@@ -69,8 +69,9 @@ class DataService
         $this->address();
         $this->dates();
         $this->LastModifiedDate();
-        $this->rh_factor();
-        $this->kell();
+        $this->convertInt('rh_factor');
+        $this->convertInt('kell');
+        $this->convertInt('pcrraw');
         $this->OrgId();
         $this->donation_org_128();
         $this->document_type();
@@ -95,8 +96,8 @@ class DataService
         $this->address();
         $this->dates();
         $this->LastModifiedDate();
-        $this->rh_factor();
-        $this->kell();
+        $this->convertInt('rh_factor');
+        $this->convertInt('kell');
         $this->OrgId();
         $this->donation_org_128();
         $this->document_type();
@@ -122,8 +123,8 @@ class DataService
         $this->address();
         $this->dates();
         $this->LastModifiedDate();
-        $this->rh_factor();
-        $this->kell();
+        $this->convertInt('rh_factor');
+        $this->convertInt('kell');
         $this->phenotype();
 //       dd( array_diff($item, $this->convert_item));//показывает какие строчки поменялись
 //        dump($item);//исходный
@@ -143,8 +144,8 @@ class DataService
         $this->address();
         $this->dates();
         $this->LastModifiedDate();
-        $this->rh_factor();
-        $this->kell();
+        $this->convertInt('rh_factor');
+        $this->convertInt('kell');
         $this->phenotype();
 //       dd( array_diff($item, $this->convert_item));//показывает какие строчки поменялись
 //        dump($item);//исходный
@@ -201,42 +202,22 @@ class DataService
         $this->convert_item['LastModifiedDate'] = Carbon::now()->addHours(3)->format('Y-m-d H:i:s');
     }
 
-    private function rh_factor()
+    private function convertInt($field)
     {
-        switch ($this->convert_item['rh_factor']) {
-            case "+":
-            {
-                $this->convert_item['rh_factor'] = 1;
-                break;
-            }
-            case "-":
-            {
-                $this->convert_item['rh_factor'] = -1;
-                break;
-            }
-            default:
-                $this->convert_item['rh_factor'] = null;
-        }
-
-    }
-
-    private function kell()
-
-    {
-        switch ($this->convert_item['kell']) {
+        switch ($this->convert_item[$field]) {
             case "K":
             case "+":
             {
-                $this->convert_item['kell'] = 1;
+                $this->convert_item[$field] = 1;
                 break;
             }
             case "-":
             {
-                $this->convert_item['kell'] = -1;
+                $this->convert_item[$field] = -1;
                 break;
             }
             default:
-                $this->convert_item['kell'] = null;
+                $this->convert_item[$field] = null;
         }
     }
 
@@ -349,8 +330,8 @@ class DataService
 
     private function typeDefferals()
     {
-        $this->convert_item['ex_type'] = ltrim($this->convert_item['ex_type'], '0');
-        $this->convert_item['ex_type'] = mb_strtolower($this->convert_item['ex_type']);
+//        $this->convert_item['ex_type'] = ltrim($this->convert_item['ex_type'], '0');
+//        $this->convert_item['ex_type'] = mb_strtolower($this->convert_item['ex_type']);
         try {
             if (isset($this->deferral_types[$this->convert_item['ex_type']])) {
                 $this->convert_item['ex_type'] = $this->deferral_types[$this->convert_item['ex_type']];

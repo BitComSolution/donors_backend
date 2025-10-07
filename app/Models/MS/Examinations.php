@@ -36,7 +36,7 @@ class Examinations extends Model
         ['ms' => 'ExamType', 'aist' => 'ExamType'],
         ['ms' => 'ExamDate', 'aist' => 'analysis_date'],
 //        ['ms' => 'ExamEndTime', 'aist' => 'donation_org_id'],
-//        ['ms' => 'DeferralId', 'aist' => 'donation_org_id'],
+        ['ms' => 'DeferralId', 'aist' => 'def_id'],
         ['ms' => 'CreateDate', 'aist' => 'LastModifiedDate'],
         ['ms' => 'UserId', 'aist' => 'donation_org_id', 'db_const' => 'user_id'],
         ['ms' => 'HematologyResultType', 'aist' => 'donation_org_id', 'default' => 'const.Examinations.HematologyResultType'],
