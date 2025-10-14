@@ -49,12 +49,9 @@ class DataService
         $this->organizations = Organizations::all()->pluck('UniqueId', 'OrgCode');
         $this->deferral_types = DeferralTypes::all()->pluck('UniqueId', 'Code');
         $this->def_types_const = DefTypes::all()
-            ->pluck('eidbCode', 'aistCode')
-            ->mapWithKeys(fn($value, $key) => [strtolower($key) => strtolower($value)]);
-
+            ->pluck('eidbCode', 'aistCode');
         $this->def_types_params = DeferralTypeParams::all()
-            ->pluck('TempDeferralPeriod', 'DeferralTypeId')
-            ->mapWithKeys(fn($value, $key) => [strtolower($key) => $value]);
+            ->pluck('TempDeferralPeriod', 'DeferralTypeId');
         $this->donation_types_const = config('const.DonationType');
         $this->vng = config('const.DocType.VNG');
     }
@@ -71,7 +68,7 @@ class DataService
         $this->LastModifiedDate();
         $this->convertInt('rh_factor');
         $this->convertInt('kell');
-        $this->convertInt('pcrraw');
+        $this->pcr();
         $this->OrgId();
         $this->donation_org_128();
         $this->document_type();
@@ -110,6 +107,10 @@ class DataService
 
     public function AnalysisConvert($item)
     {
+        if (isset($item['anal_org_kod_128'])) {
+            $item['kod_128'] = $item['anal_org_kod_128'];
+            unset($item['anal_org_kod_128']);
+        }
         $model = Analysis::class;
         $item['card_id'] = $item['num'];
         $item['rh_factor'] = $item['rh'];
@@ -134,6 +135,10 @@ class DataService
 
     public function OsmotrConvert($item)
     {
+        if (isset($item['osmtor_org_kod_128'])) {
+            $item['kod_128'] = $item['osmtor_org_kod_128'];
+            unset($item['osmtor_org_kod_128']);
+        }
         $model = Osmotr::class;
         $item['created'] = Carbon::now()->addHours(3)->format('Y-m-d H:i:s');
         $this->convert_item = $item;
@@ -218,6 +223,23 @@ class DataService
             }
             default:
                 $this->convert_item[$field] = null;
+        }
+    }
+
+    private function pcr()
+    {
+        $map = [
+            'да' => 'POS',
+            'нет' => 'NEG',
+        ];
+
+        if (isset($this->convert_item['pcr'])) {
+            $value = mb_strtolower(trim($this->convert_item['pcr']));
+            if (isset($map[$value])) {
+                $this->convert_item['pcr'] = $map[$value];
+            }
+        } elseif (isset($this->convert_item['pcrraw']) && trim($this->convert_item['pcrraw']) === '-') {
+            $this->convert_item['pcr'] = 'NEG';
         }
     }
 
@@ -330,14 +352,16 @@ class DataService
 
     private function typeDefferals()
     {
-//        $this->convert_item['ex_type'] = ltrim($this->convert_item['ex_type'], '0');
-//        $this->convert_item['ex_type'] = mb_strtolower($this->convert_item['ex_type']);
         try {
             if (isset($this->deferral_types[$this->convert_item['ex_type']])) {
                 $this->convert_item['ex_type'] = $this->deferral_types[$this->convert_item['ex_type']];
-            } else {
+            } else if (isset($this->def_types_const[$this->convert_item['ex_type']])) {
                 $name = $this->def_types_const[$this->convert_item['ex_type']];
-                $this->convert_item['ex_type'] = $this->deferral_types[$name];
+                if (isset($this->deferral_types[$name])) {
+                    $this->convert_item['ex_type'] = $this->deferral_types[$name];
+                } else {
+                    $this->convert_item['ex_type'] = 'not_found';
+                }
             }
             $period = $this->def_types_params[$this->convert_item['ex_type']];
             if ($period == 0) $period = 99999;
@@ -351,15 +375,18 @@ class DataService
     private function analis()
     {
         $map = [
-            'ДА' => 'POS',
-            'НЕТ' => 'NEG',
+            'да' => 'POS',
+            'нет' => 'NEG',
         ];
 
         $fields = ['vich', 'hbs', 'sif', 'hcv'];
 
         foreach ($fields as $field) {
-            if (isset($map[$this->convert_item[$field]])) {
-                $this->convert_item[$field] = $map[$this->convert_item[$field]];
+            if (isset($this->convert_item[$field])) {
+                $value = mb_strtolower(trim($this->convert_item[$field]));
+                if (isset($map[$value])) {
+                    $this->convert_item[$field] = $map[$value];
+                }
             }
         }
     }

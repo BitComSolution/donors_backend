@@ -1,95 +1,86 @@
-version: '3.8'
+version: '3.9'
 
 services:
+  # PHP + Laravel
   app:
-    container_name: ${SERVICE}-app
-    working_dir: /app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - .:/app
-    depends_on:
-      - redis
-      - pgbouncer
-    networks:
-      - donors_infrastructure
-      - infrastructure
-    environment:
-      - LETSENCRYPT_HOST=${DOMAIN}
-      - VIRTUAL_HOST=${DOMAIN}
-      - VIRTUAL_PORT=8000
-
-  pgbouncer:
-    container_name: ${SERVICE}-pgbouncer
-    image: pgbouncer/pgbouncer:latest
-    restart: unless-stopped
-    tty: true
-    environment:
-      DATABASES_HOST: db
-      DATABASES_PORT: 5432
-      DATABASES_USER: ${DB_USERNAME}
-      DATABASES_PASSWORD: ${DB_PASSWORD}
-      DATABASES_DBNAME: ${DB_DATABASE}
-      PGBOUNCER_POOL_MODE: ${PGBOUNCER_POOL_MODE}
-      PGBOUNCER_MAX_CLIENT_CONN: ${PGBOUNCER_MAX_CLIENT_CONN}
-      PGBOUNCER_DEFAULT_POOL_SIZE: ${PGBOUNCER_DEFAULT_POOL_SIZE}
-      PGBOUNCER_MIN_POOL_SIZE: ${PGBOUNCER_MIN_POOL_SIZE}
-      PGBOUNCER_SERVER_RESET_QUERY: ${PGBOUNCER_SERVER_RESET_QUERY}
-      PGBOUNCER_LOGFILE: ${PGBOUNCER_LOGFILE}
-    volumes:
-      - donors_pgbouncer:/var/log/pgbouncer
-    networks:
-      - infrastructure
-    depends_on:
-      - db
-
-  reverse-proxy:
-    image: "jwilder/nginx-proxy:latest"
-    container_name: ${SERVICE}-reverse-proxy
-    volumes:
-      - "html:/usr/share/nginx/html"
-      - "dhparam:/etc/nginx/dhparam"
-      - "vhost:/etc/nginx/vhost.d"
-      - "certs:/etc/nginx/certs"
-      - "/run/docker.sock:/tmp/docker.sock:ro"
-    restart: unless-stopped
-    networks:
-      - donors_infrastructure
+    image: donors_backend-app:latest
+    #        build:
+    #           context: .
+    #          dockerfile: Dockerfile
+    container_name: laravel-app
+    restart: always
     ports:
-      - "80:80"
-      - "443:443"
-
-  letsencrypt:
-    image: "jrcs/letsencrypt-nginx-proxy-companion:latest"
-    container_name: ${SERVICE}-letsencrypt
-    restart: unless-stopped
+      - "8006:8000"
     volumes:
-      - "html:/usr/share/nginx/html"
-      - "dhparam:/etc/nginx/dhparam"
-      - "vhost:/etc/nginx/vhost.d"
-      - "certs:/etc/nginx/certs"
-      - "/run/docker.sock:/var/run/docker.sock:ro"
-    environment:
-      NGINX_PROXY_CONTAINER: ${SERVICE}-reverse-proxy
-      DEFAULT_EMAIL: "${EMAIL}"
+      - .:/var/www/html
     depends_on:
-      - "reverse-proxy"
+      - mariadb
+      - redis
     networks:
-      - donors_infrastructure
+      - laravel
 
+  # MariaDB
+  mariadb:
+    image: mariadb:11.4
+    container_name: laravel-mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - laravel
+
+
+  # Redis
+  redis:
+    image: redis:7
+    container_name: laravel-redis
+    restart: always
+    networks:
+      - laravel
+
+  # Laravel Queue Worker
+  queue:
+    #     build:
+    #        context: .
+    #       dockerfile: Dockerfile
+    image: donors_backend-app:latest
+    container_name: laravel-queue
+    command: php artisan queue:work --verbose --tries=3
+    restart: always
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - app
+      - redis
+    networks:
+      - laravel
+
+  scheduler:
+    #  build:
+    #     context: .
+    #    dockerfile: Dockerfile
+    image: donors_backend-app:latest
+    container_name: laravel-scheduler
+    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+    restart: always
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - app
+      - mariadb
+      - redis
+    networks:
+      - laravel
 volumes:
-  certs:
-  html:
-  vhost:
-  dhparam:
-  donors_pgbouncer: {}
+  mariadb_data:
 
 networks:
-  infrastructure:
-    name: ${SERVICE}_donors_infrastructure
-    driver: bridge
-
-  donors_infrastructure:
-    name: donors_infrastructure
+  laravel:
     driver: bridge

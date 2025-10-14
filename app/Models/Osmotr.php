@@ -56,8 +56,7 @@ class Osmotr extends Model
 
     const LOG_FIELD_CONVERT = [
         'card_id',
-        'name',
-        'middlename',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'validated',
@@ -65,9 +64,7 @@ class Osmotr extends Model
     ];
     const LOG_FIELD_VALIDATOR = [
         'card_id',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'validated',
@@ -76,9 +73,7 @@ class Osmotr extends Model
     ];
     const LOG_FIELD_MS = [
         'card_id',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'validated',

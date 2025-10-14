@@ -56,9 +56,7 @@ class Source extends Model
     const LOG_FIELD_CONVERT = [
         'card_id',
         'org_name',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'donation_id',
@@ -70,9 +68,7 @@ class Source extends Model
     const LOG_FIELD_VALIDATOR = [
         'card_id',
         'org_name',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'donation_id',
@@ -85,9 +81,7 @@ class Source extends Model
     const LOG_FIELD_MS = [
         'card_id',
         'org_name',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'donation_id',
@@ -111,11 +105,11 @@ class Source extends Model
 
     const TYPES =
         [
-            'vich' => 'vich',
-            'hbs' => 'hbs',
-            'sif' => 'sif',
-            'hcv' => 'hcv',
-//            'pcr'      => 'pcr',
+            'VICH' => 'vich',
+            'HBS' => 'hbs',
+            'SIF' => 'sif',
+            'HCV' => 'hcv',
+            'MULT_PCR'      => 'pcr',
 //            'anti_a'   => 'anti_a',
 //            'anti_b'   => 'anti_b',
 //            'hla'      => 'hla',
@@ -129,7 +123,7 @@ class Source extends Model
 //            'jk'       => 'jk',
 //            'kp'       => 'kp',
 //            'pi'       => 'pi',
-            'MULT_PCR'   => 'pcrraw',
+//            'MULT_PCR'   => 'pcrraw',
 //            'vichraw'  => 'vichraw',
 //            'hbsraw'   => 'hbsraw',
 //            'sifraw'   => 'sifraw',

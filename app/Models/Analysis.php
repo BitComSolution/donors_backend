@@ -37,16 +37,16 @@ class Analysis extends Model
     const LOG_NAME = 'analyzes';
 
     const LOG_FIELD_CONVERT = [
-        'name', 'middlename', 'lastname', 'snils',
+        'lastname','name', 'middlename', 'snils',
         'message'
     ];
     const LOG_FIELD_VALIDATOR = [
-        'name', 'middlename', 'lastname', 'snils',
+        'lastname','name', 'middlename', 'snils',
         'message',
         'error'
     ];
     const LOG_FIELD_MS = [
-        'name', 'middlename', 'lastname', 'snils',
+        'lastname','name', 'middlename', 'snils',
         'message',
         'error'
     ];

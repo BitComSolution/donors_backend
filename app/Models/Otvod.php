@@ -58,9 +58,7 @@ class Otvod extends Model
 
     const LOG_FIELD_CONVERT = [
         'card_id',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'validated',
@@ -68,9 +66,7 @@ class Otvod extends Model
     ];
     const LOG_FIELD_VALIDATOR = [
         'card_id',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'validated',
@@ -79,9 +75,7 @@ class Otvod extends Model
     ];
     const LOG_FIELD_MS = [
         'card_id',
-        'name',
-        'middlename',
-        'lastname',
+        'lastname','name', 'middlename',
         'gender',
         'birth_date',
         'validated',
