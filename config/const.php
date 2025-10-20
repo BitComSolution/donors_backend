@@ -45,6 +45,10 @@ return [
         [
             'EpidControlInactive' => boolval(env('DeferralsEpidControlInactive', false)),
         ],
+    'Immunologies' =>
+        [
+            'SpecifiedParams' => intval(env('SpecifiedParams', 1)),
+        ],
     //это для прода
     'DonationType' =>
         [
@@ -81,5 +85,6 @@ return [
             '230' => '230',
             '240' => '240',
             '320' => '320',
+            '12с' => '228'
         ]
 ];

@@ -17,6 +17,20 @@ return new class extends Migration {
         Schema::connection('pgsql')->table('osmotrdata', function (Blueprint $table) {
             $table->integer('osmtor_org_kod_128')->nullable();
         });
+        Schema::connection('pgsql')->table('sourses', function (Blueprint $table) {
+            $table->integer('OrgIdTwo')->nullable();
+        });
+        Schema::connection('pgsql')->table('otvods', function (Blueprint $table) {
+            $table->integer('OrgIdTwo')->nullable();
+        });
+        Schema::connection('pgsql')->table('analyses', function (Blueprint $table) {
+            $table->integer('anal_org_kod_128')->nullable();
+            $table->integer('OrgIdTwo')->nullable();
+        });
+        Schema::connection('pgsql')->table('osmotrs', function (Blueprint $table) {
+            $table->integer('osmtor_org_kod_128')->nullable();
+            $table->integer('OrgIdTwo')->nullable();
+        });
         DB::statement("
                 ALTER TABLE osmotrdata
                 MODIFY COLUMN address VARCHAR(300)

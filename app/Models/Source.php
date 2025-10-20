@@ -36,7 +36,7 @@ class Source extends Model
         'donation_volume' => ['required', 'between:1,800'],
 //        'address' => ['regex:/^[А-Яа-я\- .\d\/]+/u'],//в исходной базе лежат не правильные данные
         'document_type' => ['required'],
-        'anti_erythrocyte_antibodies' => ['regex:/^[0+1-]{1}$/u'],
+        'anti_erythrocyte_antibodies' => ['regex:/^[0+12-]{1,2}$/u'],
         'OrgId' => ['required'],
     ];
     const TRANS_FIELDS = [
