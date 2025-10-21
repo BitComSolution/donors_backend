@@ -38,7 +38,7 @@ class Deferrals extends Model
     const Fields = [
         ['ms' => 'UniqueId', 'aist' => 'deferrals_id'],
         ['ms' => 'DonorId', 'aist' => 'card_id'],
-        ['ms' => 'OrgId', 'aist' => 'OrgId'],
+        ['ms' => 'OrgId', 'aist' => 'OrgIdTwo'],
         ['ms' => 'DeferralTypeId', 'aist' => 'ex_type'],
 //        ['ms' => 'TestResultId', 'aist' => 'card_id'],
         ['ms' => 'StartDate', 'aist' => 'created_date'],

@@ -68,9 +68,10 @@ class DataService
         $this->LastModifiedDate();
         $this->convertInt('rh_factor');
         $this->convertInt('kell');
+        $this->anti_erythrocyte_antibodies();
         $this->pcr();
         $this->OrgId();
-        $this->donation_org_128();
+        $this->OrgId('donation_org_128', 'OrgIdTwo');
         $this->document_type();
         $this->phenotype();//тут надо придумать как лучше
         $this->donation_type_id();
@@ -96,7 +97,7 @@ class DataService
         $this->convertInt('rh_factor');
         $this->convertInt('kell');
         $this->OrgId();
-        $this->donation_org_128();
+        $this->OrgIdOsmotr();
         $this->document_type();
         $this->phenotype();
         $this->typeDefferals();
@@ -107,10 +108,6 @@ class DataService
 
     public function AnalysisConvert($item)
     {
-        if (isset($item['anal_org_kod_128'])) {
-            $item['kod_128'] = $item['anal_org_kod_128'];
-            unset($item['anal_org_kod_128']);
-        }
         $model = Analysis::class;
         $item['card_id'] = $item['num'];
         $item['rh_factor'] = $item['rh'];
@@ -119,6 +116,7 @@ class DataService
         $this->convert_item = $item;
         $this->date_fields = $model::DATE_FIELDS;
         $this->OrgId();
+        $this->OrgId('anal_org_kod_128', 'OrgIdTwo');
         $this->transformData($model);
         $this->gender();
         $this->address();
@@ -135,15 +133,12 @@ class DataService
 
     public function OsmotrConvert($item)
     {
-        if (isset($item['osmtor_org_kod_128'])) {
-            $item['kod_128'] = $item['osmtor_org_kod_128'];
-            unset($item['osmtor_org_kod_128']);
-        }
         $model = Osmotr::class;
         $item['created'] = Carbon::now()->addHours(3)->format('Y-m-d H:i:s');
         $this->convert_item = $item;
         $this->date_fields = $model::DATE_FIELDS;
         $this->OrgId();
+        $this->OrgId('osmtor_org_kod_128', 'OrgIdTwo');
         $this->transformData($model);
         $this->gender();
         $this->address();
@@ -152,6 +147,7 @@ class DataService
         $this->convertInt('rh_factor');
         $this->convertInt('kell');
         $this->phenotype();
+        $this->anti_erythrocyte_antibodies();
 //       dd( array_diff($item, $this->convert_item));//показывает какие строчки поменялись
 //        dump($item);//исходный
 //        dd($this->convert_item);//готовый
@@ -226,6 +222,24 @@ class DataService
         }
     }
 
+    private function anti_erythrocyte_antibodies()
+    {
+        switch ($this->convert_item['anti_erythrocyte_antibodies']) {
+            case "+":
+            {
+                $this->convert_item['anti_erythrocyte_antibodies'] = 1;
+                break;
+            }
+            case "-":
+            {
+                $this->convert_item['anti_erythrocyte_antibodies'] = 2;
+                break;
+            }
+            default:
+                $this->convert_item['anti_erythrocyte_antibodies'] = null;
+        }
+    }
+
     private function pcr()
     {
         $map = [
@@ -233,36 +247,42 @@ class DataService
             'нет' => 'NEG',
         ];
 
-        if (isset($this->convert_item['pcr'])) {
+        if (!empty($this->convert_item['pcr'])) {
             $value = mb_strtolower(trim($this->convert_item['pcr']));
             if (isset($map[$value])) {
                 $this->convert_item['pcr'] = $map[$value];
             }
-        } elseif (isset($this->convert_item['pcrraw']) && trim($this->convert_item['pcrraw']) === '-') {
+        } elseif (isset($this->convert_item['pcrraw']) && trim($this->convert_item['pcrraw']) == '-') {
             $this->convert_item['pcr'] = 'NEG';
         }
     }
 
-    private function OrgId()
+    private function OrgId($aist_field = 'kod_128', $mysql_field = 'OrgId')
     {
         try {
-            if ($this->convert_item['kod_128'] != 0) {
-                if (isset($this->organizations[$this->convert_item['kod_128']]))
-                    $this->convert_item['OrgId'] = $this->organizations[$this->convert_item['kod_128']];
+            if ($this->convert_item[$aist_field] != 0) {
+                if (isset($this->organizations[$this->convert_item[$aist_field]]))
+                    $this->convert_item[$mysql_field] = $this->organizations[$this->convert_item[$aist_field]];
             }
         } catch (\Exception $exception) {
-            $this->convert_item['OrgId'] = 'error';
+            $this->convert_item[$mysql_field] = 'error';
         }
     }
 
-    private function donation_org_128()
+    private function OrgIdOsmotr()
     {
-        try {
-            if (isset($this->convert_item['donation_org_128']))
-                $this->convert_item['donation_org_128'] = $this->organizations[$this->convert_item['donation_org_128']];
-        } catch (\Exception $exception) {
-            $this->convert_item['donation_org_128'] = 'error';
-        }
+        $created = Carbon::parse($this->convert_item['created_date']);
+
+        $start = $created->copy()->subDays(2);
+        $end = $created->copy()->addDays(2);
+
+        $osmotr = Osmotr::where('card_id', $this->convert_item['card_id'])
+            ->whereBetween('analysis_date', [$start, $end])
+            ->first();
+
+        $this->convert_item['otvod_kod_128'] = $osmotr->osmtor_org_kod_128 ?? 'not_found';
+        $this->convert_item['OrgIdTwo'] = $osmotr->OrgIdTwo ?? 'not_found';
+
     }
 
     private function document_type()
@@ -285,46 +305,50 @@ class DataService
     {
         try {
             $phenotype = '';
-            if (preg_match('/[A-Za-z]/', $this->convert_item['phenotype'])) {
-
-                $phenotype_array = str_replace('dd', "d", $this->convert_item['phenotype']);
-                $pos = stripos($phenotype_array, '_w');
-                $three = ($pos !== false) ? 2 : 1;
-                $phenotype_array = str_replace('_w', "", $phenotype_array);
-                $phenotype_array = str_split($phenotype_array);
-                $ph = ['C', 'c', 'D', 'E', 'e'];
-                foreach ($ph as $key => $value) {
-                    if ($key == 2)
-                        $phenotype .= $three;
-                    $phenotype .= ($phenotype_array[$key] == $value) ? 2 : 1;
-
-                }
+            if ($this->convert_item['phenotype'] == 'NVL') {
+                $this->convert_item['phenotype'] = null;
             } else {
-                foreach (str_split($this->convert_item['phenotype']) as $phen) {
-                    switch ($phen) {
-                        case "+":
-                        {
-                            $phenotype .= 2;
-                            break;
-                        }
-                        case "-":
-                        {
-                            $phenotype .= 1;
-                            break;
-                        }
-                        case "%":
-                        {
-                            $phenotype .= 3;
-                            break;
-                        }
-                        default:
-                        {
-                            $phenotype .= 0;
+                if (preg_match('/[A-Za-z]/', $this->convert_item['phenotype'])) {
+
+                    $phenotype_array = str_replace('dd', "d", $this->convert_item['phenotype']);
+                    $pos = stripos($phenotype_array, '_w');
+                    $three = ($pos !== false) ? 2 : 1;
+                    $phenotype_array = str_replace('_w', "", $phenotype_array);
+                    $phenotype_array = str_split($phenotype_array);
+                    $ph = ['C', 'c', 'D', 'E', 'e'];
+                    foreach ($ph as $key => $value) {
+                        if ($key == 2)
+                            $phenotype .= $three;
+                        $phenotype .= ($phenotype_array[$key] == $value) ? 2 : 1;
+
+                    }
+                } else {
+                    foreach (str_split($this->convert_item['phenotype']) as $phen) {
+                        switch ($phen) {
+                            case "+":
+                            {
+                                $phenotype .= 2;
+                                break;
+                            }
+                            case "-":
+                            {
+                                $phenotype .= 1;
+                                break;
+                            }
+                            case "%":
+                            {
+                                $phenotype .= 3;
+                                break;
+                            }
+                            default:
+                            {
+                                $phenotype .= 0;
+                            }
                         }
                     }
                 }
+                $this->convert_item['phenotype'] = intval($phenotype);
             }
-            $this->convert_item['phenotype'] = intval($phenotype);
         } catch (\Exception $exception) {
             dump($this->convert_item['phenotype']);
         }

@@ -47,15 +47,15 @@ class SourceService
             $items = BloodData::all();
             $this->createLogAist(Source::LOG_NAME, Source::LOG_FIELD_CONVERT, $items);
             $this->sync($items, Source::class);
-            $items = OtvodAist::all();
-            $this->createLogAist(Otvod::LOG_NAME, Otvod::LOG_FIELD_CONVERT, $items);
-            $this->sync($items, Otvod::class);
             $items = AnalcliData::all();
             $this->createLogAist(Analysis::LOG_NAME, Analysis::LOG_FIELD_CONVERT, $items);
             $this->sync($items, Analysis::class);
             $items = OsmotrData::all();
             $this->createLogAist(Osmotr::LOG_NAME, Osmotr::LOG_FIELD_CONVERT, $items);
             $this->sync($items, Osmotr::class);
+            $items = OtvodAist::all();
+            $this->createLogAist(Otvod::LOG_NAME, Otvod::LOG_FIELD_CONVERT, $items);
+            $this->sync($items, Otvod::class);
         } finally {
             $command['run'] = false;
             $command->save();

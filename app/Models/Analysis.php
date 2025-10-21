@@ -23,7 +23,7 @@ class Analysis extends Model
 //        'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
 //        'kell' => ['regex:/^[\d-]{1}/u'],
         'birth_date' => ['required', 'date_format:Y-m-d H:i:s'],
-        'phenotype' => ['integer', 'regex:/^\d{0,10}/u'],
+        'phenotype' => ['nullable', 'regex:/^\d{0,10}/u'],
 
     ];
     const TRANS_FIELDS = [

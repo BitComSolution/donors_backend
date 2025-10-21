@@ -31,7 +31,7 @@ class Examinations extends Model
 
     const Fields = [
         ['ms' => 'UniqueId', 'aist' => 'examination_id'],//какой тут id число
-        ['ms' => 'OrgId', 'aist' => 'OrgId'],
+        ['ms' => 'OrgId', 'aist' => 'OrgIdTwo'],
         ['ms' => 'DonorId', 'aist' => 'card_id'],
         ['ms' => 'ExamType', 'aist' => 'ExamType'],
         ['ms' => 'ExamDate', 'aist' => 'analysis_date'],

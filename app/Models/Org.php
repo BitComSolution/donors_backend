@@ -14,6 +14,7 @@ class Org extends Model
     protected $fillable = ['name',
         'code',
         'start',
-        'end'];
+        'end',
+        'block'];
 }
 

@@ -25,7 +25,7 @@ class Source extends Model
         'blood_group' => ['integer', 'between:1,4'],
         'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
         'kell' => ['regex:/^[\d-]{1}/u'],
-        'phenotype' => ['regex:/^\d{0,10}/u'],
+        'phenotype' => ['nullable','regex:/^\d{0,10}/u'],
         'document' => ['required'],
         'donation_id' => ['required', 'regex:/^(\d{12})$/u'],
         'donor_card_id' => ['required'],

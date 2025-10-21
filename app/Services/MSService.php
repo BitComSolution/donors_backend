@@ -13,6 +13,7 @@ use App\Models\MS\DonationTestResults;
 use App\Models\MS\DonationTypes;
 use App\Models\MS\Examinations;
 use App\Models\MS\IdentityDocs;
+use App\Models\MS\Immunologies;
 use App\Models\MS\MedicalTestResults;
 use App\Models\MS\MedicalTypes;
 use App\Models\MS\Organizations;
@@ -87,12 +88,13 @@ class MSService
         foreach ($data as $item) {
             try {
                 if ($item->validated) {
+                    $item['stop'] = false;
+                    $item['message'] = 'Успешно';
                     $method = class_basename($model);
                     $this->{$method}($item);
-                    $data['message'] = 'Успешно';
                     LogService::addLine($handle_success, $model::LOG_FIELD_MS, $item);
                 } else {
-                    $data['message'] = 'Ошибка валидации';
+                    $item['message'] = 'Ошибка валидации';
                     LogService::addLine($handle_bad, $model::LOG_FIELD_MS, $item);
 
                 }
@@ -128,63 +130,105 @@ class MSService
 
     private function Source($item)
     {
-        //работа с адресами
-        $item = $this->createAddress($item);
-        //работа с документами
-        $item = $this->createDocs($item);
-        //работа с персональной картой
-        $item = $this->createPersonCards($item);
-        //работа с донацией
-        $item = $this->createDonation($item);
-//        //работа с анализами
-        $item = $this->createDonationTestResults($item, Source::TYPES);
+        //создания уникального ключа и проверка компании
+        $item = $this->createID($item);
+        if (!$item['stop']) {
+            //работа с адресами
+            $item = $this->createAddress($item);
+            //работа с документами
+            $item = $this->createDocs($item);
+            //работа с персональной картой
+            $item = $this->createPersonCards($item);
+            //работа с донацией
+            $item = $this->createDonation($item);
+            //работа с анализами
+            $item = $this->createDonationTestResults($item, Source::TYPES);
+            //работа с имунологие
+            $item = $this->createImmunologies($item);
+        }
         return $item;
     }
 
     private function Otvod($item)
     {
         //работа с адресами
-        $item = $this->createAddress($item);
+//        $item = $this->createAddress($item);
         //работа с документами
-        $item = $this->createDocs($item);
-        //работа с персональной картой
-        $item = $this->createPersonCards($item);
-        //работа с отводом
-        $item = $this->createDeferrals($item);
-
+//        $item = $this->createDocs($item);
+        //создания уникального ключа и проверка компании
+        $item = $this->createID($item, 'otvod_kod_128');
+        if (!$item['stop']) {
+            //работа с персональной картой
+//        $item = $this->createPersonCards($item);
+            //работа с отводом
+            $item = $this->createDeferrals($item);//otvod_128
+        }
         return $item;
     }
 
     private function Analysis($item)
     {
-        //работа с адресами
-        $item = $this->createAddress($item);
-        //работа с документами
-        $item = $this->createDocs($item);
-        //работа с персональной картой
-        $item = $this->createPersonCards($item);
-        //работа с экзаменами
-        $item['ExamType'] = 2;
-        $item = $this->createExaminations($item);
-        //работа с анализами
-        $item = $this->createMedicalTestResults($item, Analysis::TYPES);
+        //создания уникального ключа и проверка компании
+        $item = $this->createID($item, 'anal_org_kod_128');
+        if (!$item['stop']) {
+            //работа с адресами
+            $item = $this->createAddress($item);
+            //работа с документами
+            $item = $this->createDocs($item);
+            //работа с персональной картой
+            $item = $this->createPersonCards($item);
+            //работа с экзаменами
+            $item['ExamType'] = 2;
+            $item = $this->createExaminations($item);//
+            //работа с анализами
+            $item = $this->createMedicalTestResults($item, Analysis::TYPES);
+        }
         return $item;
     }
 
     private function Osmotr($item)
     {
-        //работа с адресами
-        $item = $this->createAddress($item);
-        //работа с документами
-        $item = $this->createDocs($item);
-        //работа с персональной картой
-        $item = $this->createPersonCards($item);
-        //работа с экзаменами
-        $item['ExamType'] = 1;
-        $item['analysis_date'] = $item['date'];
-        $item = $this->createExaminations($item);
-        //работа с анализами
-        $item = $this->createMedicalTestResults($item, Osmotr::TYPES);
+        //создания уникального ключа и проверка компании
+        $item = $this->createID($item, 'osmtor_org_kod_128');
+        if (!$item['stop']) {
+            //работа с адресами
+            $item = $this->createAddress($item);
+            //работа с документами
+            $item = $this->createDocs($item);
+            //работа с персональной картой
+            $item = $this->createPersonCards($item);
+            //работа с экзаменами
+            $item['ExamType'] = 1;
+            $item['analysis_date'] = $item['date'];
+            $item = $this->createExaminations($item);//
+            //работа с анализами
+            $item = $this->createMedicalTestResults($item, Osmotr::TYPES);
+        }
+        return $item;
+    }
+
+    private function createID($item, $two_kod = 'donation_org_128')
+    {
+        $block = Org::where('code', $item[$two_kod])->where('block', true)->first();
+        if ($block) {
+            $item['stop'] = true;
+            $item['message'] = "Попытка создать на заблокированную компанию";
+            return $item;
+        }
+
+        if (isset($this->orgs[$item['kod_128']])) {
+            $item['org_min'] = $this->orgs[$item['kod_128']];
+        } elseif (isset($this->orgs[$item[$two_kod]])) {
+            // Если основного нет пробуем запасной
+            $item['org_min'] = $this->orgs[$item[$two_kod]];
+        } else {
+            // Если вообще не найдено
+            $item['stop'] = true;
+            $item['message'] = "Компания не найдена";
+            $item['org_min'] = 0;
+        }
+
+        $item['card_id'] = $this->orgs[$item['kod_128']] + $item['card_id'];
         return $item;
     }
 
@@ -203,8 +247,6 @@ class MSService
 
     private function createPersonCards($item)
     {
-        $item['org_min'] = $this->orgs[$item['kod_128']];
-        $item['card_id'] = $this->orgs[$item['kod_128']] + $item['card_id'];
         PersonCards::updateOrCreate(
             ['UniqueId' => $item['card_id']],
             $this->createBody($item, PersonCards::Fields));
@@ -229,7 +271,7 @@ class MSService
     {
         $types = Source::TYPES;
         foreach ($types as $ms => $mysql) {
-            if (!empty($item[$mysql])) {
+            if ($item[$mysql] != 0) {
                 $item['test_value'] = $item[$mysql];
                 $item['test_type_id'] = $this->medicaltypes[$ms];
                 DonationTestResults::updateOrCreate(
@@ -243,6 +285,13 @@ class MSService
         }
         return $item;
     }
+
+    private function createImmunologies($item)
+    {
+        Immunologies::firstOrCreate($this->createBody($item, Immunologies::Fields));
+        return $item;
+    }
+
 
     private function createExaminations($item)
     {
@@ -274,7 +323,7 @@ class MSService
     {
         foreach ($types as $ms => $mysql) {
 //            $item['test_valid'] = true;//написать проверку что значение подходит
-            if (!empty($item[$mysql])) {
+            if ($item[$mysql] != 0) {
                 $item['test_value'] = $item[$mysql];
                 $item['test_type_id'] = $this->medicaltypes[strtoupper($ms)];
                 if ($item['analize_update']) {
