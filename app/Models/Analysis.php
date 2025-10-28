@@ -18,7 +18,7 @@ class Analysis extends Model
     const RULE = [
         'lastname' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
         'name' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
-        'middlename' => ['regex:/^(?:[А-ЯЁ][А-ЯёЁа-я -]+)?$/u'],
+        'middlename' => ['nullable','regex:/^(?:[А-ЯЁ][А-ЯёЁа-я -]+)?$/u'],
         'snils' => ['required', 'regex:/^(\d{11})$/u'],
 //        'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
 //        'kell' => ['regex:/^[\d-]{1}/u'],

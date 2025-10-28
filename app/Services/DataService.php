@@ -271,13 +271,13 @@ class DataService
 
     private function OrgIdOsmotr()
     {
-        $created = Carbon::parse($this->convert_item['created_date']);
+        $created = Carbon::parse($this->convert_item['created']);
 
         $start = $created->copy()->subDays(2);
         $end = $created->copy()->addDays(2);
 
         $osmotr = Osmotr::where('card_id', $this->convert_item['card_id'])
-            ->whereBetween('analysis_date', [$start, $end])
+            ->whereBetween('date', [$start, $end])
             ->first();
 
         $this->convert_item['otvod_kod_128'] = $osmotr->osmtor_org_kod_128 ?? 'not_found';

@@ -18,13 +18,13 @@ class Source extends Model
         'card_id' => ['required'],
         'lastname' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
         'name' => ['required', 'regex:/^[А-ЯЁ][А-ЯёЁа-я-]+$/u'],
-        'middlename' => ['regex:/^(?:[А-ЯЁ][А-ЯёЁа-я -]+)?$/u'],
+        'middlename' => ['nullable','regex:/^(?:[А-ЯЁ][А-ЯёЁа-я -]+)?$/u'],
 //        'gender' => [''],
         'birth_date' => ['required', 'date_format:Y-m-d H:i:s'],//как в бд
         'snils' => ['required', 'regex:/^(\d{11})$/u'],
-        'blood_group' => ['integer', 'between:1,4'],
-        'rh_factor' => ['regex:/^[\d-]{1,2}/u'],
-        'kell' => ['regex:/^[\d-]{1}/u'],
+        'blood_group' => ['nullable','integer', 'between:1,4'],
+        'rh_factor' => ['nullable','regex:/^[\d-]{1,2}/u'],
+        'kell' => ['nullable','regex:/^[\d-]{1}/u'],
         'phenotype' => ['nullable','regex:/^\d{0,10}/u'],
         'document' => ['required'],
         'donation_id' => ['required', 'regex:/^(\d{12})$/u'],
@@ -36,7 +36,7 @@ class Source extends Model
         'donation_volume' => ['required', 'between:1,800'],
 //        'address' => ['regex:/^[А-Яа-я\- .\d\/]+/u'],//в исходной базе лежат не правильные данные
         'document_type' => ['required'],
-        'anti_erythrocyte_antibodies' => ['regex:/^[0+12-]{1,2}$/u'],
+        'anti_erythrocyte_antibodies' => ['nullable','regex:/^[0+12-]{1,2}$/u'],
         'OrgId' => ['required'],
     ];
     const TRANS_FIELDS = [

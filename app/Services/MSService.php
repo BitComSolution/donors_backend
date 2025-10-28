@@ -151,15 +151,15 @@ class MSService
 
     private function Otvod($item)
     {
-        //работа с адресами
-//        $item = $this->createAddress($item);
-        //работа с документами
-//        $item = $this->createDocs($item);
         //создания уникального ключа и проверка компании
         $item = $this->createID($item, 'otvod_kod_128');
         if (!$item['stop']) {
+            //работа с адресами
+            $item = $this->createAddress($item);
+            //работа с документами
+            $item = $this->createDocs($item);
             //работа с персональной картой
-//        $item = $this->createPersonCards($item);
+            $item = $this->createPersonCards($item);
             //работа с отводом
             $item = $this->createDeferrals($item);//otvod_128
         }
@@ -220,6 +220,7 @@ class MSService
             $item['org_min'] = $this->orgs[$item['kod_128']];
         } elseif (isset($this->orgs[$item[$two_kod]])) {
             // Если основного нет пробуем запасной
+            $item['OrgId'] = $item['OrgIdTwo'];
             $item['org_min'] = $this->orgs[$item[$two_kod]];
         } else {
             // Если вообще не найдено
@@ -228,7 +229,7 @@ class MSService
             $item['org_min'] = 0;
         }
 
-        $item['card_id'] = $this->orgs[$item['kod_128']] + $item['card_id'];
+        $item['card_id'] = $item['org_min'] + $item['card_id'];
         return $item;
     }
 
