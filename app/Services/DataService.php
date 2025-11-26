@@ -4,7 +4,7 @@ namespace App\Services;
 
 
 use App\Models\Analysis;
-use App\Models\DB;
+use App\Models\MSConfig;
 use App\Models\DefTypes;
 use App\Models\MS\DeferralTypeParams;
 use App\Models\MS\DeferralTypes;
@@ -15,6 +15,7 @@ use App\Models\Otvod;
 use App\Models\Source;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 class DataService
 {
@@ -31,7 +32,7 @@ class DataService
 
     public function __construct()
     {
-        $db = DB::where('active', true)->first();
+        $db = MSConfig::where('active', true)->first();
         Config::set("database.connections.sqlsrv", [
             'driver' => 'sqlsrv',
             'host' => $db->host,
@@ -45,7 +46,10 @@ class DataService
             // 'encrypt' => env('DB_ENCRYPT_MS', 'yes'),
             'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE_MS', 'true'),
         ]);
-        $this->donation_types = DonationTypes::all()->pluck('UniqueId', 'Code');
+        DB::disconnect('sqlsrv');
+        DB::purge('sqlsrv');
+        DB::reconnect('sqlsrv');
+        $this->donation_types = DonationTypes::where('IsEtalon', 1)->pluck('UniqueId', 'Code');
         $this->organizations = Organizations::all()->pluck('UniqueId', 'OrgCode');
         $this->deferral_types = DeferralTypes::all()->pluck('UniqueId', 'Code');
         $this->def_types_const = DefTypes::all()
@@ -227,12 +231,12 @@ class DataService
         switch ($this->convert_item['anti_erythrocyte_antibodies']) {
             case "+":
             {
-                $this->convert_item['anti_erythrocyte_antibodies'] = 1;
+                $this->convert_item['anti_erythrocyte_antibodies'] = 13;
                 break;
             }
             case "-":
             {
-                $this->convert_item['anti_erythrocyte_antibodies'] = 2;
+                $this->convert_item['anti_erythrocyte_antibodies'] = 23;
                 break;
             }
             default:
@@ -389,6 +393,8 @@ class DataService
             }
             $period = $this->def_types_params[$this->convert_item['ex_type']];
             if ($period == 0) $period = 99999;
+            //добавить выбор стоп даты
+
             $this->convert_item['stop_date'] = Carbon::parse($this->convert_item['created'])->addDays($period)->format('Y-m-d H:i:s');
         } catch (\Exception $exception) {
             $this->convert_item['ex_type'] = 'not_found';

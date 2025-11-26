@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\DB;
+use App\Models\MSConfig;
 use Illuminate\Database\Seeder;
 
 class DBSeeder extends Seeder
@@ -12,7 +12,7 @@ class DBSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::firstOrCreate([
+        MSConfig::firstOrCreate([
             'name' => 'Base config'], [
             'port' => '1433',
             'database' => 'dev',

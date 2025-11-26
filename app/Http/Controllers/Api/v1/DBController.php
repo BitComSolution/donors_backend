@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Analysis;
-use App\Models\DB;
+use App\Models\MSConfig;
 use App\Models\Logs;
 use App\Models\MS\DonationTypes;
 use App\Models\Osmotr;
@@ -19,33 +19,33 @@ class DBController extends Controller
 {
     public function get()
     {
-        return response()->json(DB::all());
+        return response()->json(MSConfig::all());
     }
 
-    public function edit(DB $db, Request $request)
+    public function edit(MSConfig $db, Request $request)
     {
         return response()->json($db->update($request->all()));
     }
 
     public function create(Request $request)
     {
-        $db = DB::firstOrCreate($request->all());
+        $db = MSConfig::firstOrCreate($request->all());
         return response()->json($db);
     }
 
-    public function delete(DB $db)
+    public function delete(MSConfig $db)
     {
         return response()->json($db->delete());
     }
 
-    public function switchDB(DB $db)
+    public function switchDB(MSConfig $db)
     {
         Source::truncate();
         Otvod::truncate();
         Analysis::truncate();
         Osmotr::truncate();
         Personas::truncate();
-        Db::query()->update(['active' => false]);
+        MSConfig::query()->update(['active' => false]);
         $db->active = true;
         $db->save();
     }

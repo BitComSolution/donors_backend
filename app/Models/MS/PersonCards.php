@@ -96,7 +96,7 @@ class PersonCards extends Model
         ['ms' => 'CreateDate', 'aist' => 'created'],
         ['ms' => 'CreateUserId', 'aist' => 'author_id', 'db_const' => 'user_id'],//test data
         ['ms' => 'LastModifiedDate', 'aist' => 'LastModifiedDate'],
-//        ['ms' => 'LastModifiedUserId', 'aist' => ''],
+        ['ms' => 'LastModifiedUserId', 'aist' => 'author_id', 'db_const' => 'user_id'],//test data
 //        ['ms' => 'DonorBarcode', 'aist' => 'donation_barcode'],
         ['ms' => 'Rh', 'aist' => 'rh_factor'],
         ['ms' => 'IsAgree', 'aist' => '', 'default' => 'const.PersonCards.IsAgree'],

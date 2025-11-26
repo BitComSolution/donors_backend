@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('d_b_s', function (Blueprint $table) {
+        Schema::create('m_s_configs', function (Blueprint $table) {
             $table->id();
             $table->string('name')->default("Name DB");
             $table->string('user_id')->default(-20);
@@ -31,6 +31,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('d_b_s');
+        Schema::dropIfExists('m_s_configs');
     }
 };

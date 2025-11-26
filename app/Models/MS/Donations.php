@@ -48,7 +48,7 @@ class Donations extends Model
         ['ms' => 'CreateDate', 'aist' => 'created'],
         ['ms' => 'CreateUserId', 'aist' => 'author_id', 'db_const' => 'user_id'],
         ['ms' => 'LastModifiedDate', 'aist' => 'LastModifiedDate'],
-//        ['ms' => 'LastModifiedUserId', 'aist' => ''],
+        ['ms' => 'LastModifiedUserId', 'aist' => 'author_id', 'db_const' => 'user_id'],
 //        ['ms' => 'DataInputMethod', 'aist' => ''],
         ['ms' => 'ResultStatus', 'aist' => 'donation_analysis_result', 'default' => 'const.Donations.ResultStatus'],
     ];

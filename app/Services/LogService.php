@@ -2,13 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\MSConfig;
+
 class LogService
 {
 
 
     public static function createFile($full_path, $name, $fields)
     {
-        $dir = storage_path('csv/' . $full_path);
+        $db = MSConfig::where('active', true)->first();
+        $dir = storage_path('csv/' . $db->name . '/' . $full_path);
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
         }

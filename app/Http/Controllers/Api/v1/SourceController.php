@@ -67,7 +67,7 @@ class SourceController extends Controller
             }
         }
         if (!$data['name_org']) {
-            $errors['name_org'] = ['Required'=>[]];
+            $errors['name_org'] = ['Required' => []];
         }
         $data['error'] = $errors;
         return response()->json($data);
@@ -85,7 +85,10 @@ class SourceController extends Controller
     public function aist(Request $request)
     {
 //        $this->sourceService->dbSynchronize();
-        $this->sourceService->sendCommand($request->get('startDate', Carbon::now()->subDays(30)->toDateString()), $request->get('endDate', Carbon::now()->toDateString()));
+        $this->sourceService->sendCommand(
+            $request->get('startDate', Carbon::now()->subDays(30)->toDateString()),
+            $request->get('endDate', Carbon::now()->toDateString()),
+            $request->get('cardId', null));
         return true;
     }
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Logs;
 use App\Models\Source;
+use App\Services\SourceService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Models\Scheduled;
@@ -29,24 +30,31 @@ class Dump extends Command
      */
     public function handle()
     {
-        $command = Scheduled::where('title', 'dump')->first();
-        $date_next_start = Carbon::create($command['last_start'])->addHours($command['period_hours']);
-        if ($date_next_start < Carbon::now()) {//запуск скрипта по времени
-            //взять данные из их приложения
-            Source::all()->delete();//очистка доноров
-            //загрузить новые данные
-            //сделать логи
-            try {
-                Logs::create([
-                    'title' => 'Create log ' . Carbon::now()->toDateString(),
-                    'error' => false,
-                    'file' => 'path']);
-            } catch (\Exception $exception) {
-                Logs::create([
-                    'title' => 'Error log ' . Carbon::now()->toDateString(),
-                    'error' => true,
-                    'file' => 'path']);
+        $service = new SourceService;
 
+        $command = Scheduled::where('title', 'dump')->lockForUpdate()->first(); // защита от параллельных запусков
+
+        if (!$command) {
+            return false;
+        }
+
+        $nextStart = Carbon::parse($command->last_start)->addHours($command->period_hours);
+
+        if ($nextStart->isPast()) {
+            try {
+                $command->update([
+                    'run' => true,
+                    'last_start' => now(),
+                ]);
+
+                $startDate = now()->subDays(7)->toDateString();
+                $endDate = now()->toDateString();
+
+                $service->sendCommand($startDate, $endDate);
+
+            } catch (\Exception $e) {
+                Logs::created(['name' => 'dump', 'error' => 1, 'file' =>  $e->getMessage()]);
+                $command->update(['run' => false]);
             }
         }
     }

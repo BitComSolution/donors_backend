@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
+use App\Jobs\MS;
 use App\Models\Analysis;
-use App\Models\DB;
+use App\Models\MSConfig;
 use App\Models\EventLog;
 use App\Models\Logs;
 use App\Models\Osmotr;
@@ -27,13 +28,16 @@ class SourceService
     public function dbSynchronize()
     {
         $this->now = Carbon::now()->format("Y_m_d-H_i_s");
-        $status = Scheduled::where('run', true)->first();
-        if (!is_null($status)) {
-            return false;
+        $command = Scheduled::where('run', true)->first();
+        if (!is_null($command)) {
+            if ($command->title != 'dump') {
+                return false;
+            }
+        } else {
+            $command = Scheduled::where('title', 'aist')->first();
+            $command['run'] = true;
+            $command->save();
         }
-        $command = Scheduled::where('title', 'aist')->first();
-        $command['run'] = true;
-        $command->save();
         try {
             $this->service = new DataService;
             //очиска бд
@@ -56,17 +60,23 @@ class SourceService
             $items = OtvodAist::all();
             $this->createLogAist(Otvod::LOG_NAME, Otvod::LOG_FIELD_CONVERT, $items);
             $this->sync($items, Otvod::class);
-        } finally {
-            $command['run'] = false;
-            $command->save();
+            if ($command && $command->title == 'dump') {
+                MS::dispatch([]);
+            } else {
+                $command->update(['run' => false]);
+            }
+        } catch (\Exception $e) {
+            Logs::create(['name' => $command->title, 'error' => 1, 'file' => $e->getMessage()]);
+            $command->update(['run' => false]);
+
         }
         return [];
     }
 
     private function sync($items, $model)
     {
-        $handle_success = LogService::createFile('validator', $this->now . '_' . $model::LOG_NAME . '_success', $model::LOG_FIELD_VALIDATOR);
-        $handle_bad = LogService::createFile('validator', $this->now . '_' . $model::LOG_NAME . '_bad', $model::LOG_FIELD_VALIDATOR);
+        $handle_success = LogService::createFile('validator/' . $this->now, $this->now . '_' . $model::LOG_NAME . '_success', $model::LOG_FIELD_VALIDATOR);
+        $handle_bad = LogService::createFile('validator/' . $this->now, $this->now . '_' . $model::LOG_NAME . '_bad', $model::LOG_FIELD_VALIDATOR);
         foreach ($items as $item) {
             try {
                 $data = $model::transform($this->service, $item);
@@ -75,8 +85,7 @@ class SourceService
                 $validator = Validator::make($data, $rule);
                 $data['validated'] = !$validator->fails();
                 if ($validator->fails()) {
-                    $data['error'] = $validator->failed();
-                    LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $data + ['message' => 'Ошибка валидации']);
+                    LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $data + ['message' => $this->getMessage($validator->failed(), $item)]);
                 } else {
                     LogService::addLine($handle_success, $model::LOG_FIELD_VALIDATOR, $data + ['message' => 'Без ошибок']);
                 }
@@ -89,7 +98,8 @@ class SourceService
                     $pers->update($data);
                 }
             } catch (\Exception $exception) {
-                $data['message'] = $exception->getMessage();
+                $data['message'] = 'Произошла внутреняя ошибка в модуле валидации';
+                $data['error'] = $exception->getMessage();
                 LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $data);
                 continue;
             }
@@ -98,22 +108,24 @@ class SourceService
         LogService::closeFile($handle_bad);
     }
 
-    public function sendCommand($start, $end)
+    public function sendCommand($start, $end, $cardId = null)
     {
-        $record = DB::where('active', true)->first();
+        $record = MSConfig::where('active', true)->first();
         if (!$record) return 0;
         $url_aist = $record->url_aist;
-        //отправка команды чтобы сервис обновился
-        $client = Http::post($url_aist . '/start', [
+        $request = [
             "startDate" => $start,
-            "endDate" => $end
-        ]);
+            "endDate" => $end,
+        ];
+        if (!is_null($cardId))
+            $request['cardId'] = $cardId;
+        $client = Http::post($url_aist . '/start', $request);
         return [];
     }
 
     public static function getStatus()
     {
-        $record = DB::where('active', true)->first();
+        $record = MSConfig::where('active', true)->first();
         if (!$record) return 0;
 
         try {
@@ -152,7 +164,7 @@ class SourceService
 
     public function createLogAist($name, $fields, $data)
     {
-        $handle = LogService::createFile('converter', $this->now . '_' . $name . '_success', $fields);
+        $handle = LogService::createFile('converter/' . $this->now, $this->now . '_' . $name . '_success', $fields);
         foreach ($data as $item) {
             LogService::addLine($handle, $fields, $item);
         }
@@ -162,5 +174,20 @@ class SourceService
     public function failLog()
     {
         EventLog::create(['type' => 'fail']);
+    }
+
+    public static function getMessage($validator, $item)
+    {
+        $message = '';
+        foreach ($validator as $key => $value) {
+            $title = config('validator')[$key];
+            if (empty($item[$key])) {
+                $message = ' Поле "' . $title . '" Является обязательным';
+            } else {
+                $message = ' Поле "' . $title . '" не корректно: ' . $item[$key];
+
+            }
+        }
+        return $message;
     }
 }
