@@ -100,9 +100,9 @@ class MSService
             try {
                 if ($item->validated) {
                     $item['stop'] = false;
-                    $item['message'] = 'Успешно';
                     $method = class_basename($model);
                     $this->{$method}($item);
+                    $item['message'] = 'Успешно';
                     LogService::addLine($handle_success, $model::LOG_FIELD_MS, $item);
                 } else {
                     $item['message'] = SourceService::getMessage($item['error'], $item);

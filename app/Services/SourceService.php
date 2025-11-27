@@ -182,12 +182,11 @@ class SourceService
         $message = '';
         try {
             foreach ($validator as $key => $value) {
-                $title = config('validator')[$key];
-                if (empty($item[$key])) {
-                    $message = ' Поле "' . $title . '" Является обязательным';
+                $title = config('validator')[$key] ?? $key;
+                if (strlen(trim((string)$item[$key])) === 0) {
+                    $message .= ' Поле \'' . $title . '\' Является обязательным.';
                 } else {
-                    $message = ' Поле "' . $title . '" не корректно: ' . $item[$key];
-
+                    $message .= ' Поле \'' . $title . '\' некорректно: ' . $item[$key] . '.';
                 }
             }
         } catch (\Exception $e) {
