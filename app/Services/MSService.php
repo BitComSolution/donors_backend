@@ -5,7 +5,9 @@ namespace App\Services;
 
 use App\Models\Analysis;
 use App\Models\Constant;
-use App\Models\DB;
+use App\Models\Logs;
+use App\Models\MS\DonationParams;
+use App\Models\MSConfig;
 use App\Models\MS\Deferrals;
 use App\Models\MS\DeferralTypes;
 use App\Models\MS\Donations;
@@ -27,14 +29,14 @@ use App\Models\Scheduled;
 use App\Models\Source;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class MSService
 {
     public function send($ids = [])
     {
         //создаю подключение к МС
-        $this->db = DB::where('active', true)->first();
+        $this->db = MSConfig::where('active', true)->first();
         Config::set("database.connections.sqlsrv", [
             'driver' => 'sqlsrv',
             'host' => $this->db->host,
@@ -48,20 +50,28 @@ class MSService
             // 'encrypt' => env('DB_ENCRYPT_MS', 'yes'),
             'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE_MS', 'true'),
         ]);
-
-        $this->orgs = Org::all()->pluck('start', 'code');
-        $this->medicaltypes = MedicalTypes::all()->pluck('Id', 'Code');
-        $this->deferraltypes = DeferralTypes::all()->pluck('UniqueId', 'Code');
-        $this->now = Carbon::now()->format("Y_m_d-H_i_s");
-
-        $status = Scheduled::where('run', true)->first();
-        if (!is_null($status)) {
-            return false;
-        }
-        $command = Scheduled::where('title', 'ms')->first();
-        $command['run'] = true;
-        $command->save();
+        DB::disconnect('sqlsrv');
+        DB::purge('sqlsrv');
+        DB::reconnect('sqlsrv');
         try {
+            $command = Scheduled::where('run', true)->first();
+            if (!is_null($command)) {
+                if ($command->title != 'dump') {
+                    return false;
+                }
+            } else {
+                $command = Scheduled::where('title', 'ms')->first();
+                $command['run'] = true;
+                $command->save();
+            }
+
+            $this->orgs = Org::all()->pluck('start', 'code');
+            $this->medicaltypes[0] = MedicalTypes::all()->pluck('Id', 'Code');
+            $this->medicaltypes[1] = MedicalTypes::where('ExamType', 1)->pluck('Id', 'Code');
+            $this->medicaltypes[2] = MedicalTypes::where('ExamType', 2)->pluck('Id', 'Code');
+            $this->deferraltypes = DeferralTypes::all()->pluck('UniqueId', 'Code');
+            $this->now = Carbon::now()->format("Y_m_d-H_i_s");
+
             //перенос всех записей в мс
             $this->MSSend(Source::class, $ids);
             $this->MSSend(Otvod::class, $ids);
@@ -69,17 +79,18 @@ class MSService
             $this->MSSend(Osmotr::class, $ids);
 
             Personas::truncate();
+        } catch (\Exception $e) {
+            Logs::create(['name' => $command->title, 'error' => 1, 'file' => $e->getMessage()]);
         } finally {
-            $command['run'] = false;
-            $command->save();
+            $command->update(['run' => false]);
         }
         return true;
     }
 
     private function MSSend($model, $ids = [])
     {
-        $handle_success = LogService::createFile('eibd', $this->now . '_' . $model::LOG_NAME . '_success', $model::LOG_FIELD_MS);
-        $handle_bad = LogService::createFile('eibd', $this->now . '_' . $model::LOG_NAME . '_bad', $model::LOG_FIELD_MS);
+        $handle_success = LogService::createFile('eibd/' . $this->now, $this->now . '_' . $model::LOG_NAME . '_success', $model::LOG_FIELD_MS);
+        $handle_bad = LogService::createFile('eibd/' . $this->now, $this->now . '_' . $model::LOG_NAME . '_bad', $model::LOG_FIELD_MS);
         $query = $model::query();
         if (!empty($ids)) {
             $query = $query->whereIn("card_id", $ids);
@@ -94,7 +105,7 @@ class MSService
                     $this->{$method}($item);
                     LogService::addLine($handle_success, $model::LOG_FIELD_MS, $item);
                 } else {
-                    $item['message'] = 'Ошибка валидации';
+                    $item['message'] = SourceService::getMessage($item['error'], $item);
                     LogService::addLine($handle_bad, $model::LOG_FIELD_MS, $item);
 
                 }
@@ -104,8 +115,8 @@ class MSService
                 if (empty($message) && property_exists($exception, 'errorInfo')) {
                     $message = implode(' | ', $exception->errorInfo);
                 }
-
-                $item['message'] = $message ?: 'Неизвестная ошибка: ' . get_class($exception);
+                $data['message'] = 'Произошла внутреняя ошибка в модуле выгрузки в MS';
+                $item['error'] = $message ?: 'Неизвестная ошибка: ' . get_class($exception);
                 LogService::addLine($handle_bad, $model::LOG_FIELD_MS, $item);
 
             }
@@ -143,6 +154,8 @@ class MSService
             $item = $this->createDonation($item);
             //работа с анализами
             $item = $this->createDonationTestResults($item, Source::TYPES);
+
+            $item = $this->createDonationParams($item);
             //работа с имунологие
             $item = $this->createImmunologies($item);
         }
@@ -272,18 +285,31 @@ class MSService
     {
         $types = Source::TYPES;
         foreach ($types as $ms => $mysql) {
-            if ($item[$mysql] != 0) {
-                $item['test_value'] = $item[$mysql];
-                $item['test_type_id'] = $this->medicaltypes[$ms];
-                DonationTestResults::updateOrCreate(
-                    [
-                        'DonationId' => $item['donation_id'],
-                        'TestTypeId' => $item['test_type_id'],
-                    ],
-                    $this->createBody($item, DonationTestResults::Fields)
-                );
+            if (empty($item[$mysql])) {
+                continue;
             }
+            $item['test_value'] = $item[$mysql];
+            $item['test_type_id'] = $this->medicaltypes[0][$ms];
+            $item['donation_user'] = $this->db[$mysql] ?? $this->db['user_id'];
+            DonationTestResults::updateOrCreate(
+                [
+                    'DonationId' => $item['donation_id'],
+                    'TestTypeId' => $item['test_type_id'],
+                ],
+                $this->createBody($item, DonationTestResults::Fields)
+            );
         }
+        return $item;
+    }
+
+    private function createDonationParams($item)
+    {
+        DonationParams::firstOrCreate(
+            [
+                'DonationId' => $item['donation_id'],
+            ],
+            $this->createBody($item, DonationParams::Fields)
+        );
         return $item;
     }
 
@@ -324,20 +350,21 @@ class MSService
     {
         foreach ($types as $ms => $mysql) {
 //            $item['test_valid'] = true;//написать проверку что значение подходит
-            if ($item[$mysql] != 0) {
-                $item['test_value'] = $item[$mysql];
-                $item['test_type_id'] = $this->medicaltypes[strtoupper($ms)];
-                if ($item['analize_update']) {
-                    MedicalTestResults::updateOrCreate(
-                        [
-                            'ExaminationId' => $item['examination_id'],
-                            'TestTypeId' => $item['test_type_id'],
-                        ],
-                        $this->createBody($item, MedicalTestResults::Fields));
-                } else {
-                    // создаем всегда новые тесты
-                    MedicalTestResults::firstOrCreate($this->createBody($item, MedicalTestResults::Fields));
-                }
+            if (empty($item[$mysql])) {
+                continue;
+            }
+            $item['test_value'] = $item[$mysql];
+            $item['test_type_id'] = $this->medicaltypes[$item['ExamType']][strtoupper($ms)];
+            if ($item['analize_update']) {
+                MedicalTestResults::updateOrCreate(
+                    [
+                        'ExaminationId' => $item['examination_id'],
+                        'TestTypeId' => $item['test_type_id'],
+                    ],
+                    $this->createBody($item, MedicalTestResults::Fields));
+            } else {
+                // создаем всегда новые тесты
+                MedicalTestResults::firstOrCreate($this->createBody($item, MedicalTestResults::Fields));
             }
         }
         return $item;
@@ -345,11 +372,18 @@ class MSService
 
     private function createDeferrals($item)
     {
-        //        беру отвод по дате и карте
-//    если его нету то создаю запись
-//    если есть
-//    мы обновляем запись
         $item['created_date'] = date('Y-m-d', strtotime($item['created']));
+        $donation = Donations::where('DonorId', $item['card_id'])
+            ->where('CreateDate', $item['created_date'])
+            ->first();
+        if (!$donation) {
+            $item['donation_anal'] = null;
+        } else {
+            $analysis = DonationTestResults::where('DonationId', $donation->UniqueId)
+                ->where('CreateDate', $item['created_date'])
+                ->first();
+            $item['donation_anal'] = $analysis ? $analysis->UniqueId : null;
+        }
         $deferrals = Deferrals::where('DonorId', $item['card_id'])
             ->where('StartDate', $item['created_date'])
             ->first();

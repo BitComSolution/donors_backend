@@ -86,6 +86,7 @@ class SourceService
                 $data['validated'] = !$validator->fails();
                 if ($validator->fails()) {
                     LogService::addLine($handle_bad, $model::LOG_FIELD_VALIDATOR, $data + ['message' => $this->getMessage($validator->failed(), $item)]);
+                    $data['error'] = $validator->failed();
                 } else {
                     LogService::addLine($handle_success, $model::LOG_FIELD_VALIDATOR, $data + ['message' => 'Без ошибок']);
                 }
@@ -179,14 +180,18 @@ class SourceService
     public static function getMessage($validator, $item)
     {
         $message = '';
-        foreach ($validator as $key => $value) {
-            $title = config('validator')[$key];
-            if (empty($item[$key])) {
-                $message = ' Поле "' . $title . '" Является обязательным';
-            } else {
-                $message = ' Поле "' . $title . '" не корректно: ' . $item[$key];
+        try {
+            foreach ($validator as $key => $value) {
+                $title = config('validator')[$key];
+                if (empty($item[$key])) {
+                    $message = ' Поле "' . $title . '" Является обязательным';
+                } else {
+                    $message = ' Поле "' . $title . '" не корректно: ' . $item[$key];
 
+                }
             }
+        } catch (\Exception $e) {
+            $message = "Ошибка при проверки";
         }
         return $message;
     }

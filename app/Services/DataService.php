@@ -393,13 +393,12 @@ class DataService
             }
             $period = $this->def_types_params[$this->convert_item['ex_type']];
             if ($period == 0) $period = 99999;
-            //добавить выбор стоп даты
-
-            $this->convert_item['stop_date'] = Carbon::parse($this->convert_item['created'])->addDays($period)->format('Y-m-d H:i:s');
+            $date = DeferralTypes::where('UniqueId', $this->convert_item['ex_type'])->where('BaseType', '!=', 1)->first();
+            if ($date)
+                $this->convert_item['stop_date'] = Carbon::parse($this->convert_item['created'])->addDays($period)->format('Y-m-d H:i:s');
         } catch (\Exception $exception) {
             $this->convert_item['ex_type'] = 'not_found';
         }
-
     }
 
     private function analis()

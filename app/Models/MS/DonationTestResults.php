@@ -36,7 +36,7 @@ class DonationTestResults extends Model
 //         ['ms' => 'MaxValue', 'aist' => 'donation_id'],
         ['ms' => 'DeviationType', 'aist' => 'donation_id', 'default' => 'const.Donations.IsDeleted'],
         ['ms' => 'CreateDate', 'aist' => 'created'],
-        ['ms' => 'UserId', 'aist' => 'author_id', 'db_const' => 'user_id'],
+        ['ms' => 'UserId', 'aist' => 'donation_user'],
 
     ];
     const ID = 'medical_id';

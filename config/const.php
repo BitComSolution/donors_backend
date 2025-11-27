@@ -15,7 +15,8 @@ return [
     'Donations' =>
         [
             'IsDeleted' => env('DonationsIsDeleted', false),
-            'ResultStatus' => intval(env('DonationsResultStatus', 0)),
+            'ResultStatus' => intval(env('DonationsResultStatus', 5)),
+            'Default' => 0
         ],
     'DocType' =>
         [
@@ -39,7 +40,7 @@ return [
 //        ],
     'Examinations' =>
         [
-            'HematologyResultType' => intval(env('ExaminationsHematologyResultType', 1)),
+            'HematologyResultType' => intval(env('ExaminationsHematologyResultType', 5)),
         ],
     'Deferrals' =>
         [
