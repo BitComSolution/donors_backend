@@ -42,7 +42,7 @@ class Osmotr extends Model
 //        'document_serial' => ['required', 'regex:/^(\d{4})$/u'],
 //        'document_number' => ['required', 'regex:/^(\d{6})$/u'],
 //        'anti_erythrocyte_antibodies' => ['regex:/^[0+1-]{1}$/u'],
-        'OrgId' => ['required'],
+//        'OrgId' => ['required'],
     ];
     const TRANS_FIELDS = [
         'snils',
@@ -97,7 +97,7 @@ class Osmotr extends Model
             'AD2' => 'ad_dias',
             'puls' => 'puls',
             'T' => 'temp',
-            'VLM' => 'doza',
+            //'VLM' => 'doza',
             'ves' => 'ves',
             'rost' => 'rost',
         ];

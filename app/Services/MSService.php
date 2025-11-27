@@ -110,13 +110,8 @@ class MSService
 
                 }
             } catch (\Exception $exception) {
-                $message = $exception->getMessage();
-
-                if (empty($message) && property_exists($exception, 'errorInfo')) {
-                    $message = implode(' | ', $exception->errorInfo);
-                }
                 $data['message'] = 'Произошла внутреняя ошибка в модуле выгрузки в MS';
-                $item['error'] = $message ?: 'Неизвестная ошибка: ' . get_class($exception);
+                $item['error'] = $exception->getMessage();
                 LogService::addLine($handle_bad, $model::LOG_FIELD_MS, $item);
 
             }
@@ -172,7 +167,7 @@ class MSService
             //работа с документами
             $item = $this->createDocs($item);
             //работа с персональной картой
-            $item = $this->createPersonCards($item);
+            $item = $this->findPersonCards($item);
             //работа с отводом
             $item = $this->createDeferrals($item);//otvod_128
         }
@@ -189,7 +184,7 @@ class MSService
             //работа с документами
             $item = $this->createDocs($item);
             //работа с персональной картой
-            $item = $this->createPersonCards($item);
+            $item = $this->findPersonCards($item);
             //работа с экзаменами
             $item['ExamType'] = 2;
             $item = $this->createExaminations($item);//
@@ -209,7 +204,7 @@ class MSService
             //работа с документами
             $item = $this->createDocs($item);
             //работа с персональной картой
-            $item = $this->createPersonCards($item);
+            $item = $this->findPersonCards($item);
             //работа с экзаменами
             $item['ExamType'] = 1;
             $item['analysis_date'] = $item['date'];
@@ -262,6 +257,14 @@ class MSService
     private function createPersonCards($item)
     {
         PersonCards::updateOrCreate(
+            ['UniqueId' => $item['card_id']],
+            $this->createBody($item, PersonCards::Fields));
+        return $item;
+    }
+
+    private function findPersonCards($item)
+    {
+        PersonCards::firstOrCreate(
             ['UniqueId' => $item['card_id']],
             $this->createBody($item, PersonCards::Fields));
         return $item;
@@ -381,6 +384,7 @@ class MSService
         } else {
             $analysis = DonationTestResults::where('DonationId', $donation->UniqueId)
                 ->where('CreateDate', $item['created_date'])
+                ->where('TestValue', 'POS')
                 ->first();
             $item['donation_anal'] = $analysis ? $analysis->UniqueId : null;
         }

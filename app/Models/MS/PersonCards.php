@@ -104,7 +104,7 @@ class PersonCards extends Model
 //        ['ms' => 'Chellano', 'aist' => ''],
         ['ms' => 'IsDeleted', 'aist' => '', 'default' => 'const.PersonCards.IsDeleted'],
 //        ['ms' => 'FactAddressSinceDate', 'aist' => ''],
-//        ['ms' => 'GrA', 'aist' => ''],
+        ['ms' => 'GrA', 'aist' => 'gra'],
 //        ['ms' => 'GrB', 'aist' => ''],
 //        ['ms' => 'RegAddressIsInactive', 'aist' => ''],
 //        ['ms' => 'FactAddressIsInactive', 'aist' => ''],

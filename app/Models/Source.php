@@ -37,7 +37,7 @@ class Source extends Model
 //        'address' => ['regex:/^[А-Яа-я\- .\d\/]+/u'],//в исходной базе лежат не правильные данные
         'document_type' => ['required'],
 //        'anti_erythrocyte_antibodies' => ['nullable','regex:/^[0+12-]{1,2}$/u'],
-        'OrgId' => ['required'],
+//        'OrgId' => ['required'],
     ];
     const TRANS_FIELDS = [
         'snils',
