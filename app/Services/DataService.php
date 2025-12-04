@@ -73,7 +73,7 @@ class DataService
         $this->convertInt('rh_factor');
         $this->convertInt('kell');
         $this->anti_erythrocyte_antibodies();
-        $this->pcr();
+//        $this->pcr();
         $this->OrgId();
         $this->OrgId('donation_org_128', 'OrgIdTwo');
         $this->document_type();
@@ -244,22 +244,37 @@ class DataService
         }
     }
 
-    private function pcr()
-    {
-        $map = [
-            'да' => 'POS',
-            'нет' => 'NEG',
-        ];
-
-        if (!empty($this->convert_item['pcr'])) {
-            $value = mb_strtolower(trim($this->convert_item['pcr']));
-            if (isset($map[$value])) {
-                $this->convert_item['pcr'] = $map[$value];
-            }
-        } elseif (isset($this->convert_item['pcrraw']) && trim($this->convert_item['pcrraw']) == '-') {
-            $this->convert_item['pcr'] = 'NEG';
-        }
-    }
+//    private function pcr()
+//    {
+//        $map = [
+//            'да' => 'POS',
+//            'нет' => 'NEG',
+//        ];
+//
+//        $raw = [
+//            '+' => 'POS',
+//            '-' => 'NEG',
+//            '?' => 'SOMN',
+//        ];
+//
+//        if ($this->convert_item['donation_org_128'] == 7744) {
+//            if (isset($this->convert_item['pcrraw'])) {
+//                $value = substr($this->convert_item['pcrraw'], -1);
+//                if (isset($raw[$value])) {
+//                    $this->convert_item['pcr'] = $raw[$value];
+//                }
+//            }
+//        } else {
+//            if (!empty($this->convert_item['pcr'])) {
+//                $value = mb_strtolower(trim($this->convert_item['pcr']));
+//                if (isset($map[$value])) {
+//                    $this->convert_item['pcr'] = $map[$value];
+//                }
+//            } elseif (isset($this->convert_item['pcrraw']) && trim($this->convert_item['pcrraw']) == '-') {
+//                $this->convert_item['pcr'] = 'NEG';
+//            }
+//        }
+//    }
 
     private function OrgId($aist_field = 'kod_128', $mysql_field = 'OrgId')
     {
@@ -407,15 +422,29 @@ class DataService
             'да' => 'POS',
             'нет' => 'NEG',
         ];
+//        $raw = [
+//            '+' => 'POS',
+//            '-' => 'NEG',
+//            '?' => 'SOMN',
+//        ];
 
-        $fields = ['vich', 'hbs', 'sif', 'hcv'];
+        $fields = ['pcr', 'vich', 'hbs', 'sif', 'hcv'];
 
         foreach ($fields as $field) {
-            if (isset($this->convert_item[$field])) {
-                $value = mb_strtolower(trim($this->convert_item[$field]));
-                if (isset($map[$value])) {
-                    $this->convert_item[$field] = $map[$value];
+            if (isset($this->convert_item[$field . 'raw'])) {
+                $value = substr($this->convert_item[$field . 'raw'], -1);
+                if ($this->convert_item['donation_org_128'] == 7744 && $value === '-') {
+                    $this->convert_item[$field] = 'NEG';
+                    continue;
                 }
+                if ($value == '?') {
+                    $this->convert_item[$field] = 'SOMN';
+                    continue;
+                }
+            }
+            $value = mb_strtolower(trim($this->convert_item[$field]));
+            if (isset($map[$value])) {
+                $this->convert_item[$field] = $map[$value];
             }
         }
     }

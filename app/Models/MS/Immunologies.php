@@ -67,7 +67,7 @@ class Immunologies extends Model
         ['ms' => 'SpecifiedParams', 'aist' => 'examination_id','default' => 'const.Immunologies.SpecifiedParams'],
         ['ms' => 'UserId', 'aist' => 'donation_org_id', 'db_const' => 'user_id'],
 //        ['ms' => 'Chellano', 'aist' => 'examination_id'],
-//        ['ms' => 'GrA', 'aist' => 'gra'],
+        ['ms' => 'GrA', 'aist' => 'gra'],
 //        ['ms' => 'GrB', 'aist' => 'grb'],
     ];
     const ID = 'examination_id';

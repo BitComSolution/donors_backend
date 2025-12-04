@@ -32,12 +32,18 @@ class Dump extends Command
     {
         $service = new SourceService;
 
-        $command = Scheduled::where('title', 'dump')->lockForUpdate()->first(); // защита от параллельных запусков
+        $command = Scheduled::where('title', 'dump')->first();
 
         if (!$command) {
             return false;
         }
-
+        while (true) {
+            $running = Scheduled::where('run', true)->first();
+            if (is_null($running)) {
+                break;
+            }
+            sleep(10);
+        }
         $nextStart = Carbon::parse($command->last_start)->addHours($command->period_hours);
 
         if ($nextStart->isPast()) {
@@ -53,7 +59,7 @@ class Dump extends Command
                 $service->sendCommand($startDate, $endDate);
 
             } catch (\Exception $e) {
-                Logs::created(['name' => 'dump', 'error' => 1, 'file' =>  $e->getMessage()]);
+                Logs::created(['name' => 'dump', 'error' => 1, 'file' => $e->getMessage()]);
                 $command->update(['run' => false]);
             }
         }

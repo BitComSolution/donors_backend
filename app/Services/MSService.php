@@ -64,8 +64,16 @@ class MSService
                 $command['run'] = true;
                 $command->save();
             }
-
-            $this->orgs = Org::all()->pluck('start', 'code');
+            $this->orgs = Org::all()
+                ->mapWithKeys(function ($org) {
+                    return [
+                        $org->code => [
+                            'start' => $org->start,
+                            'end' => $org->end,
+                        ],
+                    ];
+                })
+                ->toArray();
             $this->medicaltypes[0] = MedicalTypes::all()->pluck('Id', 'Code');
             $this->medicaltypes[1] = MedicalTypes::where('ExamType', 1)->pluck('Id', 'Code');
             $this->medicaltypes[2] = MedicalTypes::where('ExamType', 2)->pluck('Id', 'Code');
@@ -162,14 +170,17 @@ class MSService
         //создания уникального ключа и проверка компании
         $item = $this->createID($item, 'otvod_kod_128');
         if (!$item['stop']) {
-            //работа с адресами
-            $item = $this->createAddress($item);
-            //работа с документами
-            $item = $this->createDocs($item);
-            //работа с персональной картой
-            $item = $this->findPersonCards($item);
-            //работа с отводом
-            $item = $this->createDeferrals($item);//otvod_128
+            $stop = Carbon::parse($item['stop_date']);
+            if (is_null($item['stop_date']) || $stop->greaterThan($this->now)) {
+                //работа с адресами
+                $item = $this->createAddress($item);
+                //работа с документами
+                $item = $this->createDocs($item);
+                //работа с персональной картой
+                $item = $this->findPersonCards($item);
+                //работа с отводом
+                $item = $this->createDeferrals($item);//otvod_128
+            }
         }
         return $item;
     }
@@ -223,21 +234,22 @@ class MSService
             $item['message'] = "Попытка создать на заблокированную компанию";
             return $item;
         }
-
+        $item['org_min'] = $this->orgs[$item[$two_kod]]['start'];
+        $item['org_max'] = $this->orgs[$item[$two_kod]]['end'];
         if (isset($this->orgs[$item['kod_128']])) {
-            $item['org_min'] = $this->orgs[$item['kod_128']];
+            $person_min = $this->orgs[$item['kod_128']]['start'];
         } elseif (isset($this->orgs[$item[$two_kod]])) {
             // Если основного нет пробуем запасной
             $item['OrgId'] = $item['OrgIdTwo'];
-            $item['org_min'] = $this->orgs[$item[$two_kod]];
+            $person_min = $item['org_min'];
         } else {
             // Если вообще не найдено
             $item['stop'] = true;
             $item['message'] = "Компания не найдена";
-            $item['org_min'] = 0;
+            $person_min = 0;
         }
 
-        $item['card_id'] = $item['org_min'] + $item['card_id'];
+        $item['card_id'] = $person_min + $item['card_id'];
         return $item;
     }
 
@@ -288,7 +300,7 @@ class MSService
     {
         $types = Source::TYPES;
         foreach ($types as $ms => $mysql) {
-            if (empty($item[$mysql])) {
+            if (($item[$mysql] == 0) || $item[$mysql] == '' || is_null($item[$mysql])) {
                 continue;
             }
             $item['test_value'] = $item[$mysql];
@@ -353,7 +365,7 @@ class MSService
     {
         foreach ($types as $ms => $mysql) {
 //            $item['test_valid'] = true;//написать проверку что значение подходит
-            if (empty($item[$mysql])) {
+            if (($item[$mysql] == 0) || $item[$mysql] == '' || is_null($item[$mysql])) {
                 continue;
             }
             $item['test_value'] = $item[$mysql];
@@ -404,7 +416,8 @@ class MSService
 
     private function UniqueIdCreate($model, $item)//проверить
     {
-        $model_id = $model::orderByDesc('UniqueId')->limit(1)->first();
+        $model_id = $model::whereBetween('UniqueId', [$item['org_min'], $item['org_max']])
+            ->orderByDesc('UniqueId')->limit(1)->first();
         if (is_null($model_id) || $model_id['UniqueId'] < $item['org_min'])
             $item[$model::ID] = $item['org_min'];
         else {

@@ -19,5 +19,10 @@ class MSConfig extends Model
         'database',
         'username',
         'password',
-        'active'];
+        'active',
+        'vich',
+        'hbs',
+        'sif',
+        'hcv',
+        'pcr'];
 }

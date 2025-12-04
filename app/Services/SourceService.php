@@ -57,7 +57,12 @@ class SourceService
             $items = OsmotrData::all();
             $this->createLogAist(Osmotr::LOG_NAME, Osmotr::LOG_FIELD_CONVERT, $items);
             $this->sync($items, Osmotr::class);
-            $items = OtvodAist::all();
+            $items = OtvodAist::query()
+                ->select('card_id')
+                ->groupBy('card_id')
+                ->with('latestByCard')
+                ->get()
+                ->pluck('latestByCard');
             $this->createLogAist(Otvod::LOG_NAME, Otvod::LOG_FIELD_CONVERT, $items);
             $this->sync($items, Otvod::class);
             if ($command && $command->title == 'dump') {

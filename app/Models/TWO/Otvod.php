@@ -11,4 +11,10 @@ class Otvod extends Model
 
     protected $connection = 'pgsql';
     protected $table = 'otvoddata';
+
+    public function latestByCard()
+    {
+        return $this->hasOne(Otvod::class, 'card_id', 'card_id')
+            ->latestOfMany('ex_created');
+    }
 }
